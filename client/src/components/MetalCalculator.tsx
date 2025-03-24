@@ -1,13 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Box, Button, FormControl, InputLabel, MenuItem, Select, 
-  Slider, Typography, Paper, Grid, CircularProgress, TextField
+import {
+  Box, Button,
+  CircularProgress,
+  FormControl,
+  Grid,
+  InputLabel, MenuItem,
+  Paper,
+  Select,
+  Slider,
+  TextField,
+  Typography
 } from '@mui/material';
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, AreaChart, Area, ResponsiveContainer 
+import React, { useEffect, useState } from 'react';
+import {
+  Area,
+  AreaChart,  
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis, YAxis
 } from 'recharts';
-import { getElements, calculateConcentrations, CalculationParams, CalculationResult } from '../services/api';
+import { calculateConcentrations, CalculationParams, CalculationResult, getElements } from '../services/api';
+import colors from '../assets/colors';
 
 const MetalCalculator: React.FC = () => {
   const [elements, setElements] = useState<string[]>([]);
@@ -57,14 +73,19 @@ const MetalCalculator: React.FC = () => {
     }
   };
   
+  // Ensure all numerical values have at most 2 decimal places
+  const formatNumber = (value: number): string => {
+    return value.toFixed(2);
+  };
+  
   // Prepare data for distribution chart
   const prepareDistributionData = () => {
     if (!result) return [];
     
     return result.distributions.bin_centers.map((x, i) => ({
-      x,
-      feedstock: result.distributions.feedstock[i],
-      soil: result.distributions.soil[i]
+      x: parseFloat(formatNumber(x)),
+      feedstock: parseFloat(formatNumber(result.distributions.feedstock[i])),
+      soil: parseFloat(formatNumber(result.distributions.soil[i]))
     }));
   };
   
@@ -76,7 +97,7 @@ const MetalCalculator: React.FC = () => {
     const concentrationData: Record<string, { x: number; y: number }[]> = {};
     
     Object.keys(result.concentrations).forEach(rate => {
-      const values = result.concentrations[rate];
+      const values = result.concentrations[rate].map(v => parseFloat(formatNumber(v)));
       const min = Math.min(...values);
       const max = Math.max(...values);
       const bins = 50;
@@ -89,8 +110,8 @@ const MetalCalculator: React.FC = () => {
       });
       
       concentrationData[rate] = Array(bins).fill(0).map((_, i) => ({
-        x: min + (i + 0.5) * binSize,
-        y: histogram[i] / values.length
+        x: parseFloat(formatNumber(min + (i + 0.5) * binSize)),
+        y: parseFloat(formatNumber(histogram[i] / values.length))
       }));
     });
     
@@ -98,12 +119,8 @@ const MetalCalculator: React.FC = () => {
   };
   
   return (
-    <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-      <Typography variant="h4" gutterBottom>
-        Heavy Metal Concentration Calculator
-      </Typography>
-      
-      <Paper sx={{ p: 3, mb: 3 }}>
+    <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }} >
+      <Paper sx={{ p: 3, mb: 3, borderLeft: `4px solid ${colors.Green.Faint}` }}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <FormControl fullWidth>
@@ -145,6 +162,15 @@ const MetalCalculator: React.FC = () => {
               min={0.01}
               max={1}
               step={0.01}
+              sx={{
+                color: colors.Green.Light,
+                '& .MuiSlider-thumb': {
+                  backgroundColor: colors.Green.Light,
+                },
+                '& .MuiSlider-rail': {
+                  backgroundColor: colors.Green.Faint,
+                },
+              }}
             />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="body2">{soilDepthRange[0].toFixed(2)}</Typography>
@@ -177,6 +203,7 @@ const MetalCalculator: React.FC = () => {
                 size="small"
                 onClick={() => setApplicationRates([...applicationRates, 0])}
                 variant="outlined"
+                sx={{ color: colors.Green.Light, borderColor: colors.Green.Light }}
               >
                 Add Rate
               </Button>
@@ -189,6 +216,7 @@ const MetalCalculator: React.FC = () => {
               onClick={handleCalculate}
               disabled={loading}
               startIcon={loading ? <CircularProgress size={20} /> : null}
+              sx={{ bgcolor: colors.Green.Light, '&:hover': { bgcolor: colors.Green.Dark } }}
             >
               {loading ? 'Calculating...' : 'Calculate'}
             </Button>
@@ -197,106 +225,153 @@ const MetalCalculator: React.FC = () => {
       </Paper>
       
       {result && (
-        <>
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h5" gutterBottom>
-              Element Distributions
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={prepareDistributionData()}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="x"
-                  label={{ value: 'Concentration (mg/kg)', position: 'insideBottom', offset: -5 }}
-                />
-                <YAxis label={{ value: 'Density', angle: -90, position: 'insideLeft' }} />
-                <Tooltip />
-                <Legend />
-                <Area type="monotone" dataKey="soil" fill="#000000" fillOpacity={0.6} stroke="#000000" />
-                <Area type="monotone" dataKey="feedstock" fill="#4682b4" fillOpacity={0.6} stroke="#4682b4" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </Paper>
-          
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h5" gutterBottom>
-              Resulting Concentrations
-            </Typography>
-            
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="x"
-                  label={{ value: 'Concentration (mg/kg)', position: 'insideBottom', offset: -5 }}
-                />
-                <YAxis label={{ value: 'Density', angle: -90, position: 'insideLeft' }} />
-                <Tooltip />
-                <Legend />
-                
-                {result.thresholds && result.thresholds.map((threshold, i) => (
-                  <Line
-                    key={`threshold-${i}`}
-                    type="monotone"
-                    data={[{ x: threshold, y: 0 }, { x: threshold, y: 1 }]}
-                    dataKey="y"
-                    stroke="#ff0000"
-                    strokeDasharray="5 5"
-                    name={`Threshold ${result.threshold_agencies?.[i] || ''}`}
+        <Paper sx={{ p: 4, mb: 4, maxHeight: '80vh', overflow: 'auto', borderLeft: `4px solid ${colors.Green.Light}` }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: 'auto' }}>
+            {/* Top subplot - Feedstock and soil distributions */}
+            <Box sx={{ height: 300, mb: 5 }}>
+              <Typography variant="h6" align="center" gutterBottom sx={{ mb: 2 }}>
+                Feedstock and soil {selectedElement} distributions
+              </Typography>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={prepareDistributionData()} margin={{ top: 10, right: 30, left: 20, bottom: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="x"
+                    label={{ value: `${selectedElement} concentration (mg/kg)`, position: 'insideBottom', offset: -5 }}
+                    tickFormatter={formatNumber}
+                    padding={{ left: 10, right: 10 }}
                   />
-                ))}
-                
-                {Object.entries(prepareConcentrationData()).map(([rate, data], i) => (
-                  <Line
-                    key={`rate-${rate}`}
-                    type="monotone"
-                    data={data}
-                    dataKey="y"
-                    stroke={`hsl(${i * 40}, 70%, 50%)`}
-                    name={`${rate} t/ha`}
+                  <YAxis 
+                    label={{ value: 'Density', angle: -90, position: 'insideLeft', offset: 10 }} 
+                    tickFormatter={formatNumber}
+                    padding={{ top: 10, bottom: 10 }}
                   />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </Paper>
+                  <Tooltip formatter={(value) => [formatNumber(Number(value)), 'Density']} />
+                  <Legend wrapperStyle={{ paddingTop: 15 }} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="soil" 
+                    name="Soil distribution"
+                    fill={colors.Green.Dark} 
+                    fillOpacity={0.6} 
+                    stroke={colors.Green.Dark} 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="feedstock" 
+                    name="Feedstock distribution"
+                    fill={colors.Green.Light} 
+                    fillOpacity={0.6} 
+                    stroke={colors.Green.Light} 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </Box>
+
+            {/* Bottom subplot - Soil concentration after application */}
+            <Box sx={{ height: 300, mt: 3, mb: 2 }}>
+              <Typography variant="h6" align="center" gutterBottom sx={{ mb: 2 }}>
+                Soil {selectedElement} after {feedstockType} application
+              </Typography>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart margin={{ top: 10, right: 30, left: 20, bottom: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="x"
+                    label={{ value: `${selectedElement} concentration (mg/kg)`, position: 'insideBottom', offset: -5 }}
+                    tickFormatter={formatNumber}
+                    padding={{ left: 10, right: 10 }}
+                  />
+                  <YAxis 
+                    label={{ value: 'Density', angle: -90, position: 'insideLeft', offset: 10 }} 
+                    tickFormatter={formatNumber}
+                    padding={{ top: 10, bottom: 10 }}
+                  />
+                  <Tooltip formatter={(value) => [formatNumber(Number(value)), 'Density']} />
+                  <Legend wrapperStyle={{ paddingTop: 15 }} />
+                  
+                  {result.thresholds && result.thresholds.map((threshold, i) => (
+                    <Line
+                      key={`threshold-${i}`}
+                      type="monotone"
+                      data={[{ x: parseFloat(formatNumber(threshold)), y: 0 }, { x: parseFloat(formatNumber(threshold)), y: 1 }]}
+                      dataKey="y"
+                      stroke={colors.Green.Dark}
+                      strokeDasharray="5 5"
+                      name={`Threshold ${result.threshold_agencies?.[i] || ''}`}
+                    />
+                  ))}
+                  
+                  {Object.entries(prepareConcentrationData()).map(([rate, data], i) => {
+                    // Calculate color based on index
+                    const colorMix = i / (Object.keys(prepareConcentrationData()).length - 1 || 1);
+                    const strokeColor = i === 0 ? colors.Green.Faint : 
+                                      i === Object.keys(prepareConcentrationData()).length - 1 ? colors.Green.Dark : 
+                                      colors.Green.Light;
+                    
+                    return (
+                      <Line
+                        key={`rate-${rate}`}
+                        type="monotone"
+                        data={data}
+                        dataKey="y"
+                        stroke={strokeColor}
+                        name={`${rate} t/ha`}
+                      />
+                    );
+                  })}
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
+          </Box>
           
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h5" gutterBottom>
+          <Paper sx={{ p: 4, mt: 5, borderLeft: `4px solid ${colors.Green.Faint}` }}>
+            <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
               Statistics
             </Typography>
             
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <Typography variant="h6">Soil</Typography>
-                <Typography>Mean: {result.statistics.soil_mean.toFixed(2)} mg/kg</Typography>
-                <Typography>Median: {result.statistics.soil_median.toFixed(2)} mg/kg</Typography>
-                <Typography>95th Percentile: {result.statistics.soil_95_percentile.toFixed(2)} mg/kg</Typography>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <Typography variant="h6">Feedstock</Typography>
-                <Typography>Mean: {result.statistics.feedstock_mean.toFixed(2)} mg/kg</Typography>
-                <Typography>Median: {result.statistics.feedstock_median.toFixed(2)} mg/kg</Typography>
-                <Typography>95th Percentile: {result.statistics.feedstock_95_percentile.toFixed(2)} mg/kg</Typography>
-              </Grid>
-              
-              {applicationRates.map(rate => (
-                <Grid item xs={12} md={4} key={`stats-${rate}`}>
-                  <Typography variant="h6">{rate} t/ha Application</Typography>
-                  <Typography>Mean: {result.statistics[`application_${rate}_mean`]?.toFixed(2) || 'N/A'} mg/kg</Typography>
-                  <Typography>Median: {result.statistics[`application_${rate}_median`]?.toFixed(2) || 'N/A'} mg/kg</Typography>
-                  <Typography>95th Percentile: {result.statistics[`application_${rate}_95_percentile`]?.toFixed(2) || 'N/A'} mg/kg</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box>
+                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Soil and Feedstock</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                  <Box sx={{ minWidth: 200 }}>
+                    <Typography variant="body2" color="text.secondary">Soil</Typography>
+                    <Typography>Mean: {formatNumber(result.statistics.soil_mean)} mg/kg</Typography>
+                    <Typography>Median: {formatNumber(result.statistics.soil_median)} mg/kg</Typography>
+                    <Typography>95th Percentile: {formatNumber(result.statistics.soil_95_percentile)} mg/kg</Typography>
+                  </Box>
                   
-                  {result.thresholds && result.thresholds.length > 0 && (
-                    <Typography>
-                      % Above Threshold: {result.statistics[`application_${rate}_pct_above_threshold`]?.toFixed(2) || 'N/A'}%
-                    </Typography>
-                  )}
-                </Grid>
-              ))}
-            </Grid>
+                  <Box sx={{ minWidth: 200 }}>
+                    <Typography variant="body2" color="text.secondary">Feedstock</Typography>
+                    <Typography>Mean: {formatNumber(result.statistics.feedstock_mean)} mg/kg</Typography>
+                    <Typography>Median: {formatNumber(result.statistics.feedstock_median)} mg/kg</Typography>
+                    <Typography>95th Percentile: {formatNumber(result.statistics.feedstock_95_percentile)} mg/kg</Typography>
+                  </Box>
+                </Box>
+              </Box>
+              
+              <Box>
+                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Application Results</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                  {applicationRates.map(rate => (
+                    <Box key={`stats-${rate}`} sx={{ minWidth: 200 }}>
+                      <Typography variant="body2" color="text.secondary">{rate} t/ha Application</Typography>
+                      <Typography>Mean: {result.statistics[`application_${rate}_mean`] ? formatNumber(result.statistics[`application_${rate}_mean`]) : 'N/A'} mg/kg</Typography>
+                      <Typography>Median: {result.statistics[`application_${rate}_median`] ? formatNumber(result.statistics[`application_${rate}_median`]) : 'N/A'} mg/kg</Typography>
+                      <Typography>95th Percentile: {result.statistics[`application_${rate}_95_percentile`] ? formatNumber(result.statistics[`application_${rate}_95_percentile`]) : 'N/A'} mg/kg</Typography>
+                      
+                      {result.thresholds && result.thresholds.length > 0 && (
+                        <Typography>
+                          % Above Threshold: {result.statistics[`application_${rate}_pct_above_threshold`] ? formatNumber(result.statistics[`application_${rate}_pct_above_threshold`]) : 'N/A'}%
+                        </Typography>
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Box>
           </Paper>
-        </>
+        </Paper>
       )}
     </Box>
   );
