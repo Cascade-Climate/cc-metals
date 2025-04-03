@@ -11,30 +11,36 @@ import io
 import base64
 from fitter import Fitter
 
-# Create FastAPI app
 app = FastAPI(title="Heavy Metal Analysis API")
 
-# Enable CORS for your frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Your Vite dev server
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load the data once when the API starts
 soil_data = pd.read_csv('cleaned_soil_data.csv')
 feedstock_data = pd.read_csv('cleaned_feedstock_data.csv')
 threshold_data = pd.read_csv('model_thresholds.csv')
 
-# Create data models
 class CalculationParams(BaseModel):
     element: str
     feedstock_type: str
     application_rates: List[float]
     soil_depth_min: float = 0.05
     soil_depth_max: float = 0.3
+    # Custom mode parameters
+    custom_mode: bool = False
+    feed_conc: Optional[float] = None
+    feed_conc_sd: Optional[float] = None
+    soil_conc: Optional[float] = None
+    soil_conc_sd: Optional[float] = None
+    dbd: Optional[float] = None
+    dbd_err: Optional[float] = None
+    soil_d: Optional[float] = None
+    soil_d_err: Optional[float] = None
 
 class CalculationResult(BaseModel):
     distributions: Dict[str, Dict[str, List[float]]]
@@ -94,7 +100,7 @@ def calc_conc(t, dbd_dist, soil_d_dist, feedstock_dist, soil_dist, n=10000):
         
     return total_conc_list
 
-# Create bulk density distribution (as in the original code)
+# Create bulk density distribution
 from scipy.stats import truncnorm
 
 def get_dbd_dist(n=1000):
@@ -129,18 +135,35 @@ def calculate(params: CalculationParams):
     element_short = params.element
     element = f"{element_short} (mg/kg)"
     feedstock_type = params.feedstock_type
-    application_rates = params.application_rates
     
     # Create distributions
-    soil_d_dist = np.random.uniform(params.soil_depth_min, params.soil_depth_max, 10000)
-    dbd_dist = get_dbd_dist()
-    
-    # Get metal distributions
-    feedstock_dist = get_dist(feedstock_data, element)
-    soil_dist = get_dist(soil_data, element)
+    if params.custom_mode:
+        # Custom mode distributions
+        rng = np.random.default_rng()
+        feedstock_dist = rng.normal(loc=params.feed_conc, scale=params.feed_conc_sd, size=10000)
+        soil_dist = rng.normal(loc=params.soil_conc, scale=params.soil_conc_sd, size=10000)
+        dbd_dist = rng.normal(loc=params.dbd, scale=params.dbd_err, size=10000)
+        soil_d_dist = rng.normal(loc=params.soil_d, scale=params.soil_d_err, size=10000)
+    else:
+        # Standard mode distributions
+        soil_d_dist = np.random.uniform(params.soil_depth_min, params.soil_depth_max, 10000)
+        dbd_dist = get_dbd_dist()
+        feedstock_dist = get_dist(feedstock_data, element)
+        soil_dist = get_dist(soil_data, element)
     
     # Get thresholds
     thresholds, agencies = get_thresh(threshold_data, element_short)
+    
+    # Determine application rates based on feedstock type
+    if not params.custom_mode:
+        if feedstock_type == 'basalt':
+            application_rates = list(range(0, 126, 25))  # t = tonnes
+        elif feedstock_type == 'peridotite':
+            application_rates = list(range(0, 26, 5))    # t = tonnes
+        else:
+            application_rates = params.application_rates
+    else:
+        application_rates = params.application_rates
     
     # Calculate concentrations for each application rate
     concentrations = {}
