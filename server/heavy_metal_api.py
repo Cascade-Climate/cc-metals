@@ -23,6 +23,15 @@ soil_data = pd.read_csv('data/cleaned_soil_data.csv')
 feedstock_data = pd.read_csv('data/cleaned_feedstock_data.csv')
 threshold_data = pd.read_csv('data/model_thresholds.csv')
 
+class ThresholdEntry(BaseModel):
+    agency: str
+    threshold: float
+
+class ThresholdResult(BaseModel):
+    Total: List[ThresholdEntry]
+    Aqua_regia: List[ThresholdEntry]
+    Other_very_strong_acid: List[ThresholdEntry]
+
 class PresetCalculationParams(BaseModel):
     element: str
     feedstock_type: str
@@ -125,16 +134,49 @@ def get_dbd_dist():
     return truncated_normal.rvs(size=n)
     
 
-def get_thresh(df_thresh, element_short):
-    """Get threshold values for an element"""
-    df_thresh['Threshold Level (mg/kg)'] = df_thresh['Threshold Level (mg/kg)'].apply(
+def get_thresh(element) -> ThresholdResult:
+    """Get threshold values for an element, categorized by extraction type"""
+    # Clean threshold values by removing commas
+    threshold_data['Threshold Level (mg/kg)'] = threshold_data['Threshold Level (mg/kg)'].apply(
         lambda x: x.replace(',', '') if isinstance(x, str) and ',' in x else x
     )
     
-    thresh = df_thresh[df_thresh['Metal'] == element_short]['Threshold Level (mg/kg)'].dropna().astype('float').to_list()
-    thresh_agency = df_thresh[df_thresh['Metal'] == element_short]['Agency'].to_list()
+    # Filter for the specific element
+    element_data = threshold_data[threshold_data['Metal'] == element]
     
-    return thresh, thresh_agency
+    # Initialize the result dictionary
+    thresholds = {
+        "Total": [],
+        "Aqua_regia": [],
+        "Other_very_strong_acid": []
+    }
+    
+    # Process each row and categorize by extraction type
+    for _, row in element_data.iterrows():
+        extraction_type = row['Total, Aqua regia, extractable, or other (specify)']
+        if pd.isna(extraction_type):
+            continue
+            
+        # Clean and convert threshold value
+        try:
+            threshold_value = float(row['Threshold Level (mg/kg)'])
+        except (ValueError, TypeError):
+            continue
+            
+        threshold_entry = ThresholdEntry(
+            agency=row['Agency'],
+            threshold=threshold_value
+        )
+        
+        # Categorize based on extraction type
+        if "total" in extraction_type.lower():
+            thresholds["Total"].append(threshold_entry)
+        elif "aqua regia" in extraction_type.lower():
+            thresholds["Aqua_regia"].append(threshold_entry)
+        else:
+            thresholds["Other_very_strong_acid"].append(threshold_entry)
+    
+    return ThresholdResult(**thresholds)
 
 def calculate_normalized_kde(data, num_points=200):
     """Calculate KDE for the given data and normalize to percentages"""
@@ -214,7 +256,7 @@ def calculate_preset(params: PresetCalculationParams):
             }
         },
         "concentrations": concentrations,
-        "element": element,
+        "element": element_short,
         "feedstock_type": feedstock_type
     }
 
@@ -256,3 +298,8 @@ def calculate_custom(params: CustomCalculationParams):
         "element": params.element,
         "feedstock_type": params.feedstock_type
     }
+
+@app.get("/thresholds")
+def get_thresholds(element: str) -> ThresholdResult:
+    """Get threshold values for a specific element"""
+    return get_thresh(element)

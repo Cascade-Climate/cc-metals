@@ -42,6 +42,17 @@ export interface CalculationResult {
   feedstock_type: string;
 }
 
+export interface ThresholdEntry {
+  agency: string;
+  threshold: number;
+}
+
+export interface ThresholdResult {
+  Total: ThresholdEntry[];
+  Aqua_regia: ThresholdEntry[];
+  Other_very_strong_acid: ThresholdEntry[];
+}
+
 interface ElementsResponse {
   elements: string[];
 }
@@ -69,6 +80,13 @@ export async function calculatePresetConcentrations(
   const response = await axios.post<CalculationResult>(
     `${API_BASE_URL}/calculate-preset`,
     params
+  );
+  return response.data;
+}
+
+export async function getThresholds(element: string): Promise<ThresholdResult> {
+  const response = await axios.get<ThresholdResult>(
+    `${API_BASE_URL}/thresholds?element=${element}`
   );
   return response.data;
 }
