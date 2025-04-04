@@ -46,7 +46,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
         <Typography variant="subtitle1" align="center" mb={1}>
           Feedstock and soil {result.element} distributions
         </Typography>
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={200}>
           <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
             <XAxis
               dataKey="x"
@@ -107,7 +107,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               justifyContent: 'center',
             }}
           >
-            <Typography variant="subtitle1" mt={4}>
+            <Typography variant="subtitle1" mt={5}>
               Soil {result.element} after {result.feedstock_type} application
             </Typography>
           </Box>
@@ -121,7 +121,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
             <CustomLegend concentrations={result.concentrations} />
           </Box>
         </Box>
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={200}>
           <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
             <XAxis
               dataKey="x"
