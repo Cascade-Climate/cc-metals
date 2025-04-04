@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import React from 'react';
 import {
   Line,
@@ -11,6 +11,7 @@ import {
 import { CalculationResult, ThresholdResult } from '../services/metalsService';
 import CustomLegend from './CustomLegend';
 import CustomTooltip from './CustomTooltip';
+import Regulations from './Regulations';
 
 interface ChartsProps {
   result: CalculationResult;
@@ -18,10 +19,31 @@ interface ChartsProps {
 }
 
 const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
+  const calculateDomainUpperBound = (max: number): number => {
+    const exponent = Math.floor(Math.log10(max));
+    const fraction = max / Math.pow(10, exponent);
+    let scaleFactor = 1;
+
+    if (fraction <= 1.2) scaleFactor = 1.2;
+    else if (fraction <= 1.5) scaleFactor = 1.5;
+    else if (fraction <= 2) scaleFactor = 2;
+    else if (fraction <= 2.5) scaleFactor = 2.5;
+    else if (fraction <= 3) scaleFactor = 3;
+    else if (fraction <= 4) scaleFactor = 4;
+    else if (fraction <= 5) scaleFactor = 5;
+    else if (fraction <= 6) scaleFactor = 6;
+    else if (fraction <= 7) scaleFactor = 7;
+    else if (fraction <= 8) scaleFactor = 8;
+    else if (fraction <= 9) scaleFactor = 9;
+    else scaleFactor = 10;
+
+    return scaleFactor * Math.pow(10, exponent);
+  };
+
   return (
-    <Paper sx={{ px: 5, pb: 10 }}>
-      <Box sx={{ height: 300, mb: 10 }}>
-        <Typography variant="h6" align="center" gutterBottom>
+    <Box sx={{ pr: 5 }}>
+      <Box>
+        <Typography variant="subtitle1" align="center" mb={1}>
           Feedstock and soil {result.element} distributions
         </Typography>
         <ResponsiveContainer width="100%" height="100%">
@@ -36,7 +58,8 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               label={{
                 value: 'Density',
                 angle: -90,
-                position: 'insideLeft',
+                position: 'outsideLeft',
+                fontSize: 12,
               }}
               domain={[
                 0,
@@ -74,7 +97,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
           </LineChart>
         </ResponsiveContainer>
       </Box>
-      <Box sx={{ height: 300 }}>
+      <Box>
         <Box sx={{ display: 'flex', mb: 2 }}>
           <Box sx={{ width: '33.33%' }} />
           <Box
@@ -84,7 +107,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               justifyContent: 'center',
             }}
           >
-            <Typography variant="h6" mt={5}>
+            <Typography variant="subtitle1" mt={4}>
               Soil {result.element} after {result.feedstock_type} application
             </Typography>
           </Box>
@@ -99,32 +122,37 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
           </Box>
         </Box>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
-            id="chart"
-          >
+          <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
             <XAxis
               dataKey="x"
               type="number"
               label={{
+                fontSize: 12,
                 value: `${result.element} concentration (mg/kg)`,
                 position: 'bottom',
               }}
-              domain={[0, 'auto']}
+              domain={[
+                0,
+                calculateDomainUpperBound(
+                  Math.max(
+                    ...Object.values(result.concentrations).map((kde) =>
+                      Math.max(...kde.x)
+                    )
+                  )
+                ),
+              ]}
+              allowDataOverflow={true}
+              tickCount={9}
+              tick={{ fontSize: 12 }}
             />
             <YAxis
               label={{
                 value: 'Density',
                 angle: -90,
-                position: 'insideLeft',
+                position: 'outsideLeft',
+                fontSize: 12,
               }}
-              domain={[
-                0,
-                Math.max(
-                  ...result.distributions.feedstock.y,
-                  ...result.distributions.soil.y
-                ) * 1.1,
-              ]}
+              domain={[0, 'auto']}
               tick={false}
             />
             <Tooltip content={<CustomTooltip />} />
@@ -141,6 +169,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 stroke="#000000"
                 dot={false}
                 strokeWidth={2}
+                activeDot={false}
               />
             ))}
             {thresholds?.Aqua_regia.map((entry, index) => (
@@ -152,11 +181,12 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 ]}
                 type="monotone"
                 dataKey="y"
-                name={`${entry.agency} (Aqua regia) [${entry.threshold}]`}
+                name={`${entry.agency} (Aqua Regia) [${entry.threshold}]`}
                 stroke="#000000"
                 strokeDasharray="5,5"
                 dot={false}
                 strokeWidth={2}
+                activeDot={false}
               />
             ))}
             {thresholds?.Other_very_strong_acid.map((entry, index) => (
@@ -173,6 +203,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 strokeDasharray="1,1"
                 dot={false}
                 strokeWidth={2}
+                activeDot={false}
               />
             ))}
             {Object.entries(result.concentrations).map(([rate, kde], index) => (
@@ -201,12 +232,14 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 }
                 dot={false}
                 strokeWidth={2}
+                activeDot={false}
               />
             ))}
           </LineChart>
         </ResponsiveContainer>
       </Box>
-    </Paper>
+      <Regulations thresholds={thresholds} />
+    </Box>
   );
 };
 

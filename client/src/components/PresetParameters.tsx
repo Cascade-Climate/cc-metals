@@ -17,7 +17,7 @@ const PresetParameters: React.FC<PresetParametersProps> = ({
   elements,
 }) => {
   return (
-    <Grid container spacing={3} sx={{ width: '100%' }}>
+    <Grid container spacing={3} sx={{ width: '100%', mt: 2 }}>
       <Grid width="40%">
         <FormControl fullWidth>
           <InputLabel>Feedstock Type</InputLabel>

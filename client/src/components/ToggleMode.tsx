@@ -13,13 +13,12 @@ const ToggleMode: React.FC<ToggleModeProps> = ({ isCustom, setIsCustom }) => {
       value={isCustom}
       exclusive
       sx={{
-        mb: 3,
         width: '20%',
         '& .MuiToggleButton-root': {
           flex: 1,
           fontWeight: 'bold',
-          fontSize: '1rem',
-          py: 0.5,
+          fontSize: '0.8rem',
+          py: 0,
           textTransform: 'none',
         },
       }}
