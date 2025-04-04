@@ -24,8 +24,26 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ height: '100vh', width: '100vw', overflow: 'hidden', bgcolor: 'white', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ width: '100%', height: headerHeight, bgcolor: 'primary.dark', display: 'flex', alignItems: 'center', px: 3 }}>
+      <Box
+        sx={{
+          height: '100vh',
+          width: '100vw',
+          overflow: 'hidden',
+          bgcolor: 'white',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Box
+          sx={{
+            width: '100%',
+            height: headerHeight,
+            bgcolor: 'primary.dark',
+            display: 'flex',
+            alignItems: 'center',
+            px: 3,
+          }}
+        >
           <Box
             component="img"
             sx={{ height: '30px', cursor: 'pointer' }}
@@ -35,12 +53,19 @@ function App() {
           />
           <Typography
             variant="h5"
-            sx={{ p: 3, color: 'white', fontWeight: 'normal', whiteSpace: 'nowrap' }}
+            sx={{
+              p: 3,
+              color: 'white',
+              fontWeight: 'normal',
+              whiteSpace: 'nowrap',
+            }}
           >
             Metal Accumulation Calculator (MAC)
           </Typography>
         </Box>
-        <MetalCalculator />
+        <Box sx={{ flex: 1, overflow: 'auto' }}>
+          <MetalCalculator />
+        </Box>
       </Box>
     </ThemeProvider>
   );

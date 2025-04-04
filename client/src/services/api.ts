@@ -2,34 +2,73 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8000';
 
-export interface CalculationParams {
+export interface CustomCalculationParams {
   element: string;
   feedstock_type: string;
-  application_rates: number[];
-  soil_depth_min?: number;
-  soil_depth_max?: number;
+  soil_conc: number;
+  soil_conc_sd: number;
+  soil_d: number;
+  soil_d_err: number;
+  dbd: number;
+  dbd_err: number;
+  feed_conc: number;
+  feed_conc_sd: number;
+  application_rate: number;
+}
+
+export interface PresetCalculationParams {
+  element: string;
+  feedstock_type: string;
 }
 
 export interface CalculationResult {
   distributions: {
-    bin_centers: number[];
-    feedstock: number[];
-    soil: number[];
+    feedstock: {
+      x: number[];
+      y: number[];
+    };
+    soil: {
+      x: number[];
+      y: number[];
+    };
   };
-  concentrations: Record<string, number[]>;
-  thresholds: number[] | null;
-  threshold_agencies: string[] | null;
-  statistics: Record<string, number>;
+  concentrations: {
+    [key: string]: {
+      x: number[];
+      y: number[];
+    };
+  };
+  element: string;
+  feedstock_type: string;
 }
 
-export async function getElements(): Promise<string[]> {
-  const response = await axios.get(`${API_BASE_URL}/elements`);
+interface ElementsResponse {
+  elements: string[];
+}
+
+export async function getElements(feedstockType: string): Promise<string[]> {
+  const response = await axios.get<ElementsResponse>(
+    `${API_BASE_URL}/elements?feedstock_type=${feedstockType}`
+  );
   return response.data.elements;
 }
 
-export async function calculateConcentrations(
-  params: CalculationParams
+export async function calculateCustomConcentrations(
+  params: CustomCalculationParams
 ): Promise<CalculationResult> {
-  const response = await axios.post(`${API_BASE_URL}/calculate`, params);
+  const response = await axios.post<CalculationResult>(
+    `${API_BASE_URL}/calculate-custom`,
+    params
+  );
+  return response.data;
+}
+
+export async function calculatePresetConcentrations(
+  params: PresetCalculationParams
+): Promise<CalculationResult> {
+  const response = await axios.post<CalculationResult>(
+    `${API_BASE_URL}/calculate-preset`,
+    params
+  );
   return response.data;
 }

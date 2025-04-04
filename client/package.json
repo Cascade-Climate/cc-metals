@@ -10,9 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^2.2.4",
-    "@chakra-ui/react": "^2.10.4",
-    "@clerk/clerk-react": "^5.18.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@eslint/compat": "^1.2.4",
@@ -21,8 +18,6 @@
     "axios": "^1.8.4",
     "eslint": "^8.57.1",
     "eslint-js": "github:eslint/js",
-    "framer-motion": "^11.13.1",
-    "jotai": "^2.10.3",
     "lodash": "^4.17.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

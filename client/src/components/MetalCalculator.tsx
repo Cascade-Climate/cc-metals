@@ -8,420 +8,470 @@ import {
   MenuItem,
   Paper,
   Select,
-  Slider,
   TextField,
   Typography,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
   Legend,
   Line,
   LineChart,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 import colors from '../assets/colors';
 import {
-  calculateConcentrations,
-  CalculationParams,
+  calculatePresetConcentrations,
+  calculateCustomConcentrations,
   CalculationResult,
   getElements,
+  PresetCalculationParams,
+  CustomCalculationParams,
 } from '../services/api';
 
 const MetalCalculator: React.FC = () => {
   const [elements, setElements] = useState<string[]>([]);
   const [selectedElement, setSelectedElement] = useState<string>('');
   const [feedstockType, setFeedstockType] = useState<string>('basalt');
-  const [applicationRates, setApplicationRates] = useState<number[]>([
-    0, 25, 50, 75, 100,
-  ]);
-  const [soilDepthRange, setSoilDepthRange] = useState<[number, number]>([
-    0.05, 0.3,
-  ]);
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<CalculationResult | null>(null);
+  const [isCustom, setIsCustom] = useState<boolean>(false);
+
+  console.log(result?.distributions.feedstock);
+
+  const [customParams, setCustomParams] = useState<CustomCalculationParams>({
+    element: '',
+    feedstock_type: '',
+    soil_conc: 15,
+    soil_conc_sd: 1,
+    soil_d: 0.18,
+    soil_d_err: 0.02,
+    dbd: 1300,
+    dbd_err: 100,
+    feed_conc: 1500,
+    feed_conc_sd: 250,
+    application_rate: 2,
+  });
 
   useEffect(() => {
     const loadElements = async () => {
-      try {
-        const elementsList = await getElements();
-        setElements(elementsList);
-        if (elementsList.length > 0) {
-          setSelectedElement(elementsList[0]);
-        }
-      } catch (error) {
-        console.error('Failed to load elements:', error);
-      }
+      const elementsList = await getElements(feedstockType);
+      setElements(elementsList);
+      setSelectedElement('');
     };
-    loadElements().catch((error) =>
-      console.error('Failed to load elements:', error)
-    );
-  }, []);
+    void loadElements().catch(console.warn);
+  }, [feedstockType]);
 
   const handleCalculate = async () => {
-    if (!selectedElement) return;
-
     setLoading(true);
 
     try {
-      const params: CalculationParams = {
-        element: selectedElement,
-        feedstock_type: feedstockType,
-        application_rates: applicationRates,
-        soil_depth_min: soilDepthRange[0],
-        soil_depth_max: soilDepthRange[1],
-      };
-
-      const data = await calculateConcentrations(params);
-      setResult(data);
+      if (isCustom) {
+        if (customParams.element === '') {
+          setCustomParams({
+            ...customParams,
+            element: 'Custom element',
+          });
+        }
+        if (customParams.feedstock_type === '') {
+          setCustomParams({
+            ...customParams,
+            feedstock_type: 'Custom feedstock type',
+          });
+        }
+        const data = await calculateCustomConcentrations(customParams);
+        setResult(data);
+      } else {
+        if (selectedElement === '') {
+          return;
+        }
+        const params: PresetCalculationParams = {
+          element: selectedElement,
+          feedstock_type: feedstockType,
+        };
+        const data = await calculatePresetConcentrations(params);
+        setResult(data);
+      }
     } catch (error) {
-      console.error('Calculation failed:', error);
+      console.warn('Calculation failed:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Ensure all numerical values have at most 2 decimal places
-  const formatNumber = (value: number): string => {
-    return value.toFixed(2);
-  };
-
-  // Prepare data for distribution chart
-  const prepareDistributionData = () => {
-    if (!result) return [];
-
-    return result.distributions.bin_centers.map((x, i) => ({
-      x: parseFloat(formatNumber(x)),
-      feedstock: parseFloat(formatNumber(result.distributions.feedstock[i])),
-      soil: parseFloat(formatNumber(result.distributions.soil[i])),
-    }));
-  };
-
-  // Prepare data for concentration charts
-  const prepareConcentrationData = () => {
-    if (!result) return {};
-
-    // Create histogram data for each application rate
-    const concentrationData: Record<string, { x: number; y: number }[]> = {};
-
-    Object.keys(result.concentrations).forEach((rate) => {
-      const values = result.concentrations[rate].map((v) =>
-        parseFloat(formatNumber(v))
-      );
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const bins = 50;
-      const binSize = (max - min) / bins;
-
-      const histogram = Array(bins).fill(0);
-      values.forEach((val) => {
-        const binIndex = Math.min(Math.floor((val - min) / binSize), bins - 1);
-        histogram[binIndex]++;
+  const handleCustomParamChange =
+    (field: keyof CustomCalculationParams) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setCustomParams({
+        ...customParams,
+        [field]: parseFloat(event.target.value) || 0,
       });
-
-      concentrationData[rate] = Array(bins)
-        .fill(0)
-        .map((_, i) => ({
-          x: parseFloat(formatNumber(min + (i + 0.5) * binSize)),
-          y: parseFloat(formatNumber(histogram[i] / values.length)),
-        }));
-    });
-
-    return concentrationData;
-  };
+    };
 
   return (
-    <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-      <Paper
-        sx={{ p: 3, mb: 3, borderLeft: `4px solid ${colors.Green.Faint}` }}
-      >
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <FormControl fullWidth>
-              <InputLabel>Element</InputLabel>
-              <Select
-                value={selectedElement}
-                onChange={(e) => setSelectedElement(e.target.value)}
-                label="Element"
-              >
-                {elements.map((elem) => (
-                  <MenuItem key={elem} value={elem}>
-                    {elem}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 4 }}>
-            <FormControl fullWidth>
-              <InputLabel>Feedstock Type</InputLabel>
-              <Select
-                value={feedstockType}
-                onChange={(e) => setFeedstockType(e.target.value)}
-                label="Feedstock Type"
-              >
-                <MenuItem value="basalt">Basalt</MenuItem>
-                <MenuItem value="peridotite">Peridotite</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Typography gutterBottom>Soil Depth Range (m)</Typography>
-            <Slider
-              value={soilDepthRange}
-              onChange={(_, newValue) =>
-                setSoilDepthRange(newValue as [number, number])
-              }
-              valueLabelDisplay="auto"
-              min={0.01}
-              max={1}
-              step={0.01}
-              sx={{
-                color: colors.Green.Light,
-                '& .MuiSlider-thumb': {
-                  backgroundColor: colors.Green.Light,
-                },
-                '& .MuiSlider-rail': {
-                  backgroundColor: colors.Green.Faint,
-                },
-              }}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2">
-                {soilDepthRange[0].toFixed(2)}
-              </Typography>
-              <Typography variant="body2">
-                {soilDepthRange[1].toFixed(2)}
-              </Typography>
-            </Box>
-          </Grid>
-
-          <Grid size={{ xs: 12 }}>
-            <Typography gutterBottom>Application Rates (t/ha)</Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 1,
-                alignItems: 'center',
-              }}
-            >
-              {applicationRates.map((rate, i) => (
-                <Box key={i} sx={{ display: 'flex', alignItems: 'center' }}>
-                  <TextField
-                    type="number"
-                    value={rate}
-                    onChange={(e) => {
-                      const newRates = [...applicationRates];
-                      newRates[i] = Number(e.target.value);
-                      setApplicationRates(newRates);
-                    }}
-                    size="small"
-                    sx={{ width: 80 }}
-                  />
-                  {i < applicationRates.length - 1 && (
-                    <Typography sx={{ mx: 1 }}>,</Typography>
-                  )}
-                </Box>
-              ))}
-              <Button
-                size="small"
-                onClick={() => setApplicationRates([...applicationRates, 0])}
-                variant="outlined"
-                sx={{
-                  color: colors.Green.Light,
-                  borderColor: colors.Green.Light,
-                }}
-              >
-                Add Rate
-              </Button>
-            </Box>
-          </Grid>
-
-          <Grid size={{ xs: 12 }}>
-            <Button
-              variant="contained"
-              onClick={handleCalculate}
-              disabled={loading}
-              startIcon={loading ? <CircularProgress size={20} /> : null}
-              sx={{
-                bgcolor: colors.Green.Light,
-                '&:hover': { bgcolor: colors.Green.Dark },
-              }}
-            >
-              {loading ? 'Calculating...' : 'Calculate'}
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {result && (
-        <Paper
+    <Box height="100%" width="100%">
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <ToggleButtonGroup
+          value={isCustom}
+          exclusive
           sx={{
-            p: 4,
-            mb: 4,
-            maxHeight: '80vh',
-            overflow: 'auto',
-            borderLeft: `4px solid ${colors.Green.Light}`,
+            mb: 3,
+            width: '20%',
+            '& .MuiToggleButton-root': {
+              flex: 1,
+              fontWeight: 'bold',
+              fontSize: '1rem',
+              py: 0.5,
+              textTransform: 'none',
+            },
           }}
         >
-          <Box
-            sx={{ display: 'flex', flexDirection: 'column', height: 'auto' }}
+          <ToggleButton
+            onClick={() => setIsCustom(false)}
+            value={false}
+            sx={{
+              '&.Mui-selected': {
+                backgroundColor: colors.Green.Dark,
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: colors.Green.Dark,
+                },
+              },
+            }}
           >
-            {/* Top subplot - Feedstock and soil distributions */}
-            <Box sx={{ height: 300, mb: 5 }}>
-              <Typography
-                variant="h6"
-                align="center"
-                gutterBottom
-                sx={{ mb: 2 }}
-              >
-                Feedstock and soil {selectedElement} distributions
-              </Typography>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={prepareDistributionData()}
-                  margin={{ top: 10, right: 30, left: 20, bottom: 30 }}
+            Preset
+          </ToggleButton>
+          <ToggleButton
+            onClick={() => setIsCustom(true)}
+            value={true}
+            sx={{
+              '&.Mui-selected': {
+                backgroundColor: colors.Green.Dark,
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: colors.Green.Dark,
+                },
+              },
+            }}
+          >
+            Custom
+          </ToggleButton>
+        </ToggleButtonGroup>
+        {!isCustom ? (
+          <Grid container spacing={3} sx={{ width: '100%' }}>
+            <Grid width="40%">
+              <FormControl fullWidth>
+                <InputLabel>Feedstock Type</InputLabel>
+                <Select
+                  value={feedstockType}
+                  onChange={(e) => setFeedstockType(e.target.value)}
+                  label="Feedstock Type"
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="x"
-                    label={{
-                      value: `${selectedElement} concentration (mg/kg)`,
-                      position: 'insideBottom',
-                      offset: -5,
-                    }}
-                    tickFormatter={formatNumber}
-                    padding={{ left: 10, right: 10 }}
-                  />
-                  <YAxis
-                    label={{
-                      value: 'Density',
-                      angle: -90,
-                      position: 'insideLeft',
-                      offset: 10,
-                    }}
-                    tickFormatter={formatNumber}
-                    padding={{ top: 10, bottom: 10 }}
-                  />
-                  <Tooltip
-                    formatter={(value) => [
-                      formatNumber(Number(value)),
-                      'Density',
-                    ]}
-                  />
-                  <Legend wrapperStyle={{ paddingTop: 15 }} />
-                  <Area
-                    type="monotone"
-                    dataKey="soil"
-                    name="Soil distribution"
-                    fill={colors.Green.Dark}
-                    fillOpacity={0.6}
-                    stroke={colors.Green.Dark}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="feedstock"
-                    name="Feedstock distribution"
-                    fill={colors.Green.Light}
-                    fillOpacity={0.6}
-                    stroke={colors.Green.Light}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </Box>
-
-            {/* Bottom subplot - Soil concentration after application */}
-            <Box sx={{ height: 300, mt: 3, mb: 2 }}>
-              <Typography
-                variant="h6"
-                align="center"
-                gutterBottom
-                sx={{ mb: 2 }}
-              >
-                Soil {selectedElement} after {feedstockType} application
-              </Typography>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  margin={{ top: 10, right: 30, left: 20, bottom: 30 }}
+                  <MenuItem value="basalt">Basalt</MenuItem>
+                  <MenuItem value="peridotite">Peridotite</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid width="40%">
+              <FormControl fullWidth>
+                <InputLabel>Element</InputLabel>
+                <Select
+                  value={selectedElement}
+                  onChange={(e) => setSelectedElement(e.target.value)}
+                  label="Element"
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="x"
-                    label={{
-                      value: `${selectedElement} concentration (mg/kg)`,
-                      position: 'insideBottom',
-                      offset: -5,
-                    }}
-                    tickFormatter={formatNumber}
-                    padding={{ left: 10, right: 10 }}
-                  />
-                  <YAxis
-                    label={{
-                      value: 'Density',
-                      angle: -90,
-                      position: 'insideLeft',
-                      offset: 10,
-                    }}
-                    tickFormatter={formatNumber}
-                    padding={{ top: 10, bottom: 10 }}
-                  />
-                  <Tooltip
-                    formatter={(value) => [
-                      formatNumber(Number(value)),
-                      'Density',
-                    ]}
-                  />
-                  <Legend wrapperStyle={{ paddingTop: 15 }} />
-
-                  {result.thresholds &&
-                    result.thresholds.map((threshold, i) => (
-                      <Line
-                        key={`threshold-${i}`}
-                        type="monotone"
-                        data={[
-                          { x: parseFloat(formatNumber(threshold)), y: 0 },
-                          { x: parseFloat(formatNumber(threshold)), y: 1 },
-                        ]}
-                        dataKey="y"
-                        stroke={colors.Green.Dark}
-                        strokeDasharray="5 5"
-                        name={`Threshold ${result.threshold_agencies?.[i] || ''}`}
-                      />
-                    ))}
-
-                  {Object.entries(prepareConcentrationData()).map(
-                    ([rate, data], i) => {
-                      const strokeColor =
-                        i === 0
-                          ? colors.Green.Faint
-                          : i ===
-                              Object.keys(prepareConcentrationData()).length - 1
-                            ? colors.Green.Dark
-                            : colors.Green.Light;
-
-                      return (
-                        <Line
-                          key={`rate-${rate}`}
-                          type="monotone"
-                          data={data}
-                          dataKey="y"
-                          stroke={strokeColor}
-                          name={`${rate} t/ha`}
-                        />
-                      );
+                  {elements.map((elem) => (
+                    <MenuItem key={elem} value={elem}>
+                      {elem}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        ) : (
+          <Grid container spacing={1} sx={{ width: '100%' }}>
+            <Grid>
+              <Typography variant="h6" gutterBottom>
+                Name of Element and Feedstock Type (optional)
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Element"
+                    value={customParams.element}
+                    onChange={(e) =>
+                      setCustomParams({
+                        ...customParams,
+                        element: e.target.value,
+                      })
                     }
-                  )}
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
+                  />
+                </Grid>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Feedstock Type"
+                    value={customParams.feedstock_type}
+                    onChange={(e) =>
+                      setCustomParams({
+                        ...customParams,
+                        feedstock_type: e.target.value,
+                      })
+                    }
+                  />
+                </Grid>{' '}
+              </Grid>
+            </Grid>
+
+            <Grid>
+              <Typography variant="h6" gutterBottom>
+                Soil Parameters
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Metal Concentration (mg/kg)"
+                    type="number"
+                    value={customParams.soil_conc}
+                    onChange={handleCustomParamChange('soil_conc')}
+                  />
+                </Grid>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Metal Concentration Error (stdev)"
+                    type="number"
+                    value={customParams.soil_conc_sd}
+                    onChange={handleCustomParamChange('soil_conc_sd')}
+                  />
+                </Grid>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Soil Depth (m)"
+                    type="number"
+                    value={customParams.soil_d}
+                    onChange={handleCustomParamChange('soil_d')}
+                  />
+                </Grid>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Soil Depth Error (stdev)"
+                    type="number"
+                    value={customParams.soil_d_err}
+                    onChange={handleCustomParamChange('soil_d_err')}
+                  />
+                </Grid>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Soil Bulk Density (g/cm^3)"
+                    type="number"
+                    value={customParams.dbd}
+                    onChange={handleCustomParamChange('dbd')}
+                  />
+                </Grid>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Soil Bulk Density Error (stdev)"
+                    type="number"
+                    value={customParams.dbd_err}
+                    onChange={handleCustomParamChange('dbd_err')}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid>
+              <Typography variant="h6" gutterBottom>
+                Feedstock Parameters
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Metal Concentration (mg/kg)"
+                    type="number"
+                    value={customParams.feed_conc}
+                    onChange={handleCustomParamChange('feed_conc')}
+                  />
+                </Grid>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Metal Concentration Error (stdev)"
+                    type="number"
+                    value={customParams.feed_conc_sd}
+                    onChange={handleCustomParamChange('feed_conc_sd')}
+                  />
+                </Grid>
+                <Grid>
+                  <TextField
+                    fullWidth
+                    label="Ton Feedstock/Application (t/ha)"
+                    type="number"
+                    value={customParams.application_rate}
+                    onChange={handleCustomParamChange('application_rate')}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        )}
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="contained"
+            onClick={handleCalculate}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} /> : null}
+            sx={{
+              bgcolor: colors.Green.Light,
+              '&:hover': { bgcolor: colors.Green.Dark },
+              py: 1,
+              px: 3,
+              fontSize: '1rem',
+              fontWeight: 'bold',
+            }}
+          >
+            {loading ? 'Calculating...' : 'Calculate'}
+          </Button>
+        </Box>
+      </Paper>
+      {result && (
+        <Paper sx={{ px: 5, pb: 10 }}>
+          <Box sx={{ height: 300, mb: 10 }}>
+            <Typography variant="h6" align="center" gutterBottom>
+              Feedstock and soil {result.element} distributions
+            </Typography>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
+                <XAxis
+                  dataKey="x"
+                  type="number"
+                  domain={[0, 'auto']}
+                  tick={false}
+                />
+                <YAxis
+                  label={{
+                    value: 'Density',
+                    angle: -90,
+                    position: 'insideLeft',
+                  }}
+                  domain={[
+                    0,
+                    Math.max(
+                      ...result.distributions.feedstock.y,
+                      ...result.distributions.soil.y
+                    ) * 1.1,
+                  ]}
+                  tick={false}
+                />
+                <Legend
+                  verticalAlign="top"
+                  align="right"
+                  iconType="plainline"
+                />
+                <Line
+                  data={result.distributions.feedstock.x.map((x, i) => ({
+                    x,
+                    y: result.distributions.feedstock.y[i],
+                  }))}
+                  type="monotone"
+                  dataKey="y"
+                  stroke="#2ca02c"
+                  name="Feedstock"
+                  dot={false}
+                  strokeWidth={2}
+                />
+                <Line
+                  data={result.distributions.soil.x.map((x, i) => ({
+                    x,
+                    y: result.distributions.soil.y[i],
+                  }))}
+                  type="monotone"
+                  dataKey="y"
+                  stroke="#7f7f7f"
+                  name="Soil"
+                  dot={false}
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Box>
+          <Box sx={{ height: 300 }}>
+            <Typography variant="h6" align="center" gutterBottom>
+              Soil {result.element} after {result.feedstock_type} application
+            </Typography>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
+                <XAxis
+                  dataKey="x"
+                  type="number"
+                  label={{
+                    value: `${result.element} concentration (mg/kg)`,
+                    position: 'bottom',
+                  }}
+                  domain={[0, 'auto']}
+                />
+                <YAxis
+                  label={{
+                    value: 'Density',
+                    angle: -90,
+                    position: 'insideLeft',
+                  }}
+                  domain={[
+                    0,
+                    Math.max(
+                      ...result.distributions.feedstock.y,
+                      ...result.distributions.soil.y
+                    ) * 1.1,
+                  ]}
+                  tick={false}
+                />
+                <Legend
+                  verticalAlign="top"
+                  align="right"
+                  iconType="plainline"
+                />
+                {Object.entries(result.concentrations).map(
+                  ([rate, kde], index) => (
+                    <Line
+                      key={rate}
+                      data={kde.x.map((x, i) => ({
+                        x,
+                        y: kde.y[i],
+                      }))}
+                      type="monotone"
+                      dataKey="y"
+                      name={`${rate} t/ha`}
+                      stroke={
+                        [
+                          '#1f77b4', // blue
+                          '#ff7f0e', // orange
+                          '#2ca02c', // green
+                          '#d62728', // red
+                          '#9467bd', // purple
+                          '#8c564b', // brown
+                          '#e377c2', // pink
+                          '#7f7f7f', // gray
+                          '#bcbd22', // yellow-green
+                          '#17becf', // cyan
+                        ][index % 10]
+                      }
+                      dot={false}
+                      strokeWidth={2}
+                    />
+                  )
+                )}
+              </LineChart>
+            </ResponsiveContainer>
           </Box>
         </Paper>
       )}
