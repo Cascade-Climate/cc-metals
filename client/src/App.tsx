@@ -63,7 +63,7 @@ function App() {
             Metal Accumulation Calculator (MAC)
           </Typography>
         </Box>
-        <Box sx={{ flex: 1, overflow: 'auto' }}>
+        <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
           <MetalCalculator />
         </Box>
       </Box>
