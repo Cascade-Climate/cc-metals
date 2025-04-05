@@ -19,6 +19,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {"status": "healthy", "message": "Heavy Metal API is running"}
+
 soil_data = pd.read_csv('data/cleaned_soil_data.csv')
 basalt_feedstock_data = pd.read_csv('data/cleaned_feedstock_data_basalt.csv')
 peridotite_feedstock_data = pd.read_csv('data/cleaned_feedstock_data_peridotite.csv')
