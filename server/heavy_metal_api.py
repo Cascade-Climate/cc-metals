@@ -9,7 +9,7 @@ from fitter import Fitter
 from scipy.stats import truncnorm
 from scipy.stats import gaussian_kde
 
-app = FastAPI(title="Heavy Metal Analysis API")
+app = FastAPI(title="Enhanced Rock Weathering Heavy Metal Analysis API")
 
 app.add_middleware(
     CORSMiddleware,

@@ -184,7 +184,7 @@ Backend:
 
 ```bash
 cd server
-python run_heavy_metal_api.py
+python3 run_heavy_metal_api.py
 ```
 
 ## API Endpoints
