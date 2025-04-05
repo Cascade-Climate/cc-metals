@@ -27,7 +27,7 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ onCalculate }) => {
   const [customParams, setCustomParams] = useState<CustomCalculationParams>({
     element: '',
     feedstock_type: '',
-    soil_conc: 15,
+    soil_conc: 50,
     soil_conc_sd: 1,
     soil_d: 0.18,
     soil_d_err: 0.02,

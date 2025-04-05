@@ -30,7 +30,16 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
       const thresholdMatch = item.name.match(/\[(\d+(?:\.\d+)?)\]/);
       if (thresholdMatch) {
         const threshold = parseFloat(thresholdMatch[1]);
-        if (Math.abs(item.payload?.x - threshold) < 1) {
+        const getThresholdTolerance = (threshold: number): number => {
+          if (threshold <= 1) return 0.05;
+          if (threshold <= 10) return 0.5;
+          return 1;
+        };
+
+        if (
+          Math.abs(item.payload?.x - threshold) <
+          getThresholdTolerance(threshold)
+        ) {
           return (
             <Typography key={index} variant="caption" display="block">
               {item.name.replace(/\[(\d+(?:\.\d+)?)\]/, '')} {threshold} mg/kg

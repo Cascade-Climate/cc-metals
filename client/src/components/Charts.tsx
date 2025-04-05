@@ -7,6 +7,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Legend,
 } from 'recharts';
 import { CalculationResult, ThresholdResult } from '../services/metalsService';
 import CustomLegend from './CustomLegend';
@@ -48,11 +49,19 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
         </Typography>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
+            <Legend verticalAlign="top" align="right" iconType="plainline" />
             <XAxis
               dataKey="x"
               type="number"
+              label={{
+                fontSize: 12,
+                value: `${result.element} concentration (mg/kg)`,
+                position: 'bottom',
+              }}
               domain={[0, 'auto']}
-              tick={false}
+              allowDataOverflow={true}
+              tickCount={9}
+              tick={{ fontSize: 12 }}
             />
             <YAxis
               label={{

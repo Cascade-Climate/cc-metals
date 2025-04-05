@@ -20,7 +20,8 @@ app.add_middleware(
 )
 
 soil_data = pd.read_csv('data/cleaned_soil_data.csv')
-feedstock_data = pd.read_csv('data/cleaned_feedstock_data.csv')
+basalt_feedstock_data = pd.read_csv('data/cleaned_feedstock_data_basalt.csv')
+peridotite_feedstock_data = pd.read_csv('data/cleaned_feedstock_data_peridotite.csv')
 threshold_data = pd.read_csv('data/model_thresholds.csv')
 
 class ThresholdEntry(BaseModel):
@@ -200,7 +201,7 @@ def get_elements(feedstock_type: str):
     """Get list of available elements based on feedstock type"""
     if feedstock_type == 'basalt':
         elements = ['Ni', 'Cu', 'Zn', 'V', 'Pb', 'Co', 'Cd', 'Se', 'Cr', 'Mn', 'Sb',
-                   'Be', 'As', 'Ag', 'Ba']
+                   'Be', 'As', 'Ag', 'Hg']
     elif feedstock_type == 'peridotite':
         elements = ['Ni', 'Cu', 'Zn', 'V', 'Pb', 'Co', 'Cd', 'Se', 'Cr', 'Mn', 'Sb',
                    'Be', 'As', 'Ag', 'Ba']
@@ -215,6 +216,11 @@ def calculate_preset(params: PresetCalculationParams):
     element_short = params.element
     element = f"{element_short} (mg/kg)"
     feedstock_type = params.feedstock_type
+    
+    if feedstock_type == 'basalt':
+        feedstock_data = basalt_feedstock_data
+    elif feedstock_type == 'peridotite':
+        feedstock_data = peridotite_feedstock_data
     
     # Create distributions using preset data
     soil_d_dist = np.random.uniform(0.05, 0.3, 10000)  # Standard soil depth range
