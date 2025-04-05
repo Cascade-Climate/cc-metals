@@ -19,6 +19,15 @@ interface ChartsProps {
   thresholds: ThresholdResult | null;
 }
 
+const applicationRateColors = [
+  '#003366', // dark blue
+  '#0055a3', // medium blue
+  '#0088ff', // very light blue
+  '#009933', // dark green
+  '#00b359', // medium green
+  '#00cc66', // bright green
+];
+
 const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
   const calculateDomainUpperBound = (max: number): number => {
     const exponent = Math.floor(Math.log10(max));
@@ -49,7 +58,15 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
         </Typography>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
-            <Legend verticalAlign="top" align="right" iconType="plainline" />
+            <Legend
+              verticalAlign="top"
+              align="right"
+              iconType="plainline"
+              wrapperStyle={{ fontSize: '12px' }}
+              formatter={(value) => (
+                <span style={{ color: 'black' }}>{value}</span>
+              )}
+            />
             <XAxis
               dataKey="x"
               type="number"
@@ -107,28 +124,30 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
         </ResponsiveContainer>
       </Box>
       <Box>
-        <Box sx={{ display: 'flex', mb: 2 }}>
-          <Box sx={{ width: '33.33%' }} />
-          <Box
-            sx={{
-              width: '33.33%',
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="subtitle1" mt={5}>
-              Soil {result.element} after {result.feedstock_type} application
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              width: '33.33%',
-              display: 'flex',
-              justifyContent: 'flex-end',
-            }}
-          >
-            <CustomLegend concentrations={result.concentrations} />
-          </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            mb: 2,
+            width: '100%',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="subtitle1" mt={5}>
+            Soil {result.element} after {result.feedstock_type} application
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            mb: 2,
+          }}
+        >
+          <CustomLegend
+            concentrations={result.concentrations}
+            colors={applicationRateColors}
+          />
         </Box>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
@@ -226,18 +245,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 dataKey="y"
                 name={`${rate} t/ha`}
                 stroke={
-                  [
-                    '#1f77b4', // blue
-                    '#ff7f0e', // orange
-                    '#2ca02c', // green
-                    '#d62728', // red
-                    '#9467bd', // purple
-                    '#8c564b', // brown
-                    '#e377c2', // pink
-                    '#7f7f7f', // gray
-                    '#bcbd22', // yellow-green
-                    '#17becf', // cyan
-                  ][index % 10]
+                  applicationRateColors[index % applicationRateColors.length]
                 }
                 dot={false}
                 strokeWidth={2}

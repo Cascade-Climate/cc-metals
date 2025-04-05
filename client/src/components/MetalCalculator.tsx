@@ -17,18 +17,16 @@ const MetalCalculator: React.FC = () => {
       if (result?.element) {
         const thresholds = await getThresholds(result.element);
         setThresholds(thresholds);
+      } else {
+        setThresholds(null);
       }
     };
     void loadThresholds().catch(console.warn);
   }, [result]);
 
-  const handleCalculate = (newResult: CalculationResult) => {
-    setResult(newResult);
-  };
-
   return (
     <Box height="100%" width="100%" mb={5}>
-      <CalculatorInput onCalculate={handleCalculate} />
+      <CalculatorInput setResult={setResult} />
       {result && <Charts result={result} thresholds={thresholds} />}
     </Box>
   );

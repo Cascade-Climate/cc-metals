@@ -3,25 +3,16 @@ import React from 'react';
 
 interface CustomLegendProps {
   concentrations: { [key: string]: { x: number[]; y: number[] } };
+  colors: string[];
 }
 
-const CustomLegend: React.FC<CustomLegendProps> = ({ concentrations }) => {
-  const colors = [
-    '#1f77b4', // blue
-    '#ff7f0e', // orange
-    '#2ca02c', // green
-    '#d62728', // red
-    '#9467bd', // purple
-    '#8c564b', // brown
-    '#e377c2', // pink
-    '#7f7f7f', // gray
-    '#bcbd22', // yellow-green
-    '#17becf', // cyan
-  ];
-
+const CustomLegend: React.FC<CustomLegendProps> = ({
+  concentrations,
+  colors,
+}) => {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         <Box>
           <Typography
             variant="subtitle2"

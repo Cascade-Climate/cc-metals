@@ -14,10 +14,10 @@ import PresetParameters from './PresetParameters';
 import ToggleMode from './ToggleMode';
 
 interface CalculatorInputProps {
-  onCalculate: (result: CalculationResult) => void;
+  setResult: (result: CalculationResult) => void;
 }
 
-const CalculatorInput: React.FC<CalculatorInputProps> = ({ onCalculate }) => {
+const CalculatorInput: React.FC<CalculatorInputProps> = ({ setResult }) => {
   const [elements, setElements] = useState<string[]>([]);
   const [selectedElement, setSelectedElement] = useState<string>('');
   const [feedstockType, setFeedstockType] = useState<string>('basalt');
@@ -52,21 +52,29 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ onCalculate }) => {
 
     try {
       if (isCustom) {
+        const updatedElement =
+          customParams.element === ''
+            ? '[Custom element]'
+            : customParams.element;
+        const updatedFeedstockType =
+          customParams.feedstock_type === ''
+            ? '[Custom feedstock]'
+            : customParams.feedstock_type;
+
         if (customParams.element === '' || customParams.feedstock_type === '') {
           setCustomParams({
             ...customParams,
-            element:
-              customParams.element === ''
-                ? '[Custom element]'
-                : customParams.element,
-            feedstock_type:
-              customParams.feedstock_type === ''
-                ? '[Custom feedstock]'
-                : customParams.feedstock_type,
+            element: updatedElement,
+            feedstock_type: updatedFeedstockType,
           });
         }
-        const data = await calculateCustomConcentrations(customParams);
-        onCalculate(data);
+
+        const data = await calculateCustomConcentrations({
+          ...customParams,
+          element: updatedElement,
+          feedstock_type: updatedFeedstockType,
+        });
+        setResult(data);
       } else {
         if (selectedElement === '') {
           return;
@@ -76,7 +84,7 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ onCalculate }) => {
           feedstock_type: feedstockType,
         };
         const data = await calculatePresetConcentrations(params);
-        onCalculate(data);
+        setResult(data);
       }
     } catch (error) {
       console.warn('Calculation failed:', error);
