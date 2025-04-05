@@ -139,7 +139,7 @@ The `metalsService.ts` provides a comprehensive API client for backend communica
 2. Create and activate a virtual environment:
 
    ```bash
-   python -m venv venv
+   python3 -m venv venv  # Try 'python' instead if python3 doesn't work
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
