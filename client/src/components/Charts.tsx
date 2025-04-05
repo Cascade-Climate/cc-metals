@@ -132,7 +132,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
             justifyContent: 'center',
           }}
         >
-          <Typography variant="subtitle1" mt={5}>
+          <Typography variant="subtitle1" mt={2}>
             Soil {result.element} after {result.feedstock_type} application
           </Typography>
         </Box>
