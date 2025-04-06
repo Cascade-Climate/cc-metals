@@ -117,7 +117,6 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ setResult }) => {
         startIcon={loading ? <CircularProgress size={20} /> : null}
         sx={{
           bgcolor: colors.Green.Light,
-          '&:hover': { bgcolor: colors.Green.Dark },
           py: 1,
           px: 3,
           fontSize: '0.8rem',
