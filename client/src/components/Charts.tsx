@@ -51,7 +51,14 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
   };
 
   return (
-    <Box sx={{ pr: 5 }}>
+    <Box sx={{ 
+      pr: {
+        xs: 2,
+        sm: 2,
+        md: 4,
+        lg: 5,
+      }
+    }}>
       <Box>
         <Typography variant="subtitle1" align="center" mb={1}>
           Feedstock and soil {result.element} distributions

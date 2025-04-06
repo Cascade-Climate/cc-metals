@@ -16,7 +16,15 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
         <Box>
           <Typography
             variant="subtitle2"
-            sx={{ textAlign: 'right', fontSize: '0.8rem', fontWeight: 'bold' }}
+            sx={{ 
+              textAlign: 'right', 
+              fontSize: {
+                xs: '0.7rem',
+                sm: '0.8rem',
+                md: '0.9rem'
+              }, 
+              fontWeight: 'bold' 
+            }}
           >
             Application Rate
           </Typography>
@@ -26,6 +34,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
               flexDirection: 'row',
               gap: 1,
               justifyContent: 'flex-end',
+              flexWrap: 'wrap',
             }}
           >
             {Object.keys(concentrations).map((rate, index) => (
@@ -36,7 +45,17 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                 <Box
                   sx={{ width: 20, height: 2, bgcolor: colors[index % 10] }}
                 />
-                <Typography variant="caption" whiteSpace="nowrap">
+                <Typography 
+                  variant="caption" 
+                  whiteSpace="nowrap"
+                  sx={{
+                    fontSize: {
+                      xs: '0.6rem',
+                      sm: '0.7rem',
+                      md: '0.75rem'
+                    }
+                  }}
+                >
                   {rate} t/ha
                 </Typography>
               </Box>
@@ -46,7 +65,15 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
         <Box>
           <Typography
             variant="subtitle2"
-            sx={{ textAlign: 'right', fontSize: '0.8rem', fontWeight: 'bold' }}
+            sx={{ 
+              textAlign: 'right', 
+              fontSize: {
+                xs: '0.7rem',
+                sm: '0.8rem',
+                md: '0.9rem'
+              }, 
+              fontWeight: 'bold' 
+            }}
           >
             Extraction Type
           </Typography>
@@ -75,7 +102,18 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   strokeWidth="2"
                 />
               </svg>
-              <Typography variant="caption">Total</Typography>
+              <Typography 
+                variant="caption"
+                sx={{
+                  fontSize: {
+                    xs: '0.6rem',
+                    sm: '0.7rem',
+                    md: '0.75rem'
+                  }
+                }}
+              >
+                Total
+              </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <svg width="20" height="2">
@@ -89,7 +127,18 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   strokeDasharray="4,4"
                 />
               </svg>
-              <Typography variant="caption">Aqua Regia</Typography>
+              <Typography 
+                variant="caption"
+                sx={{
+                  fontSize: {
+                    xs: '0.6rem',
+                    sm: '0.7rem',
+                    md: '0.75rem'
+                  }
+                }}
+              >
+                Aqua Regia
+              </Typography>
             </Box>
             <Box
               sx={{
@@ -109,7 +158,16 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   strokeDasharray="1,1"
                 />
               </svg>
-              <Typography variant="caption">
+              <Typography 
+                variant="caption"
+                sx={{
+                  fontSize: {
+                    xs: '0.6rem',
+                    sm: '0.7rem',
+                    md: '0.75rem'
+                  }
+                }}
+              >
                 Other (Very Strong Acid)
               </Typography>
             </Box>
