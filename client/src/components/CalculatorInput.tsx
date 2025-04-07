@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Paper } from '@mui/material';
+import { Button, CircularProgress, Paper, Typography, Box } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import colors from '../assets/colors';
 import {
@@ -110,22 +110,40 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ setResult }) => {
           setCustomParams={setCustomParams}
         />
       )}
-      <Button
-        variant="contained"
-        onClick={handleCalculate}
-        disabled={loading}
-        startIcon={loading ? <CircularProgress size={20} /> : null}
-        sx={{
-          bgcolor: colors.Green.Light,
-          py: 1,
-          px: 3,
-          fontSize: '0.8rem',
-          fontWeight: 'bold',
-          mt: 2,
-        }}
-      >
-        {loading ? 'Calculating...' : 'Calculate'}
-      </Button>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+        <Button
+          variant="contained"
+          onClick={handleCalculate}
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} /> : null}
+          sx={{
+            bgcolor: colors.Green.Light,
+            py: 1,
+            px: 3,
+            fontSize: '0.8rem',
+            fontWeight: 'bold',
+          }}
+        >
+          {loading ? 'Calculating...' : 'Calculate'}
+        </Button>
+        {loading && (
+          <Typography
+            variant="body2"
+            sx={{ 
+              fontStyle: 'italic', 
+              color: 'text.secondary',
+              fontSize: {
+                xs: '0.75rem',
+                sm: '0.8rem',
+                md: '0.85rem',
+                lg: '0.9rem'
+              }
+            }}
+          >
+            Please wait. Calculations can take up to 15 seconds.
+          </Typography>
+        )}
+      </Box>
     </Paper>
   );
 };
