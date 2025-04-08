@@ -1,4 +1,4 @@
-import { Grid, TextField, Typography } from '@mui/material';
+import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import React from 'react';
 import { CustomCalculationParams } from '../services/metalsService';
 
@@ -154,7 +154,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                     '& .MuiInputBase-input': { fontSize: '0.8rem' },
                     '& .MuiInputLabel-root': { fontSize: '0.8rem' },
                   }}
-                  label="Ton Feedstock/Application (t/ha)"
+                  label="Ton Feedstock/Hectare (t/ha)"
                   type="number"
                   value={customParams.application_rate}
                   onChange={handleCustomParamChange('application_rate')}
@@ -168,22 +168,35 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
             </Typography>
             <Grid container spacing={2}>
               <Grid>
-                <TextField
-                  fullWidth
-                  size="small"
-                  sx={{
-                    '& .MuiInputBase-input': { fontSize: '0.8rem' },
-                    '& .MuiInputLabel-root': { fontSize: '0.8rem' },
-                  }}
-                  label="Element"
-                  value={customParams.element}
-                  onChange={(e) =>
-                    setCustomParams({
-                      ...customParams,
-                      element: e.target.value,
-                    })
-                  }
-                />
+                <FormControl fullWidth size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel sx={{ fontSize: '0.8rem' }}>Element</InputLabel>
+                  <Select
+                    value={customParams.element}
+                    onChange={(e) =>
+                      setCustomParams({
+                        ...customParams,
+                        element: e.target.value,
+                      })
+                    }
+                    label="Element"
+                    sx={{
+                      '& .MuiSelect-select': { 
+                        fontSize: '0.8rem',
+                        maxHeight: '15px',
+                        display: 'flex',
+                        alignItems: 'center'
+                      },
+                      '& .MuiMenuItem-root': { fontSize: '0.8rem' }
+                    }}
+                  >
+                    {['Ag', 'As', 'Be', 'Cd', 'Co', 'Cr', 'Cu', 'Hg', 'Mn', 'Ni', 'Pb', 'Sb', 'Se', 'V', 'Zn'].map((elem) => (
+                      <MenuItem key={elem} value={elem}>
+                        {elem}
+                      </MenuItem>
+                    ))}
+                    <MenuItem value="[Custom element]">[Custom element]</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid>
                 <TextField

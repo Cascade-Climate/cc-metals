@@ -59,7 +59,13 @@ const Regulations: React.FC<RegulationsProps> = ({ thresholds }) => {
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke="black"
+                  stroke={
+                    entry.type === 'Aqua Regia'
+                      ? '#0000FF'
+                      : entry.type === 'Other'
+                        ? '#FFA500'
+                        : '#FF0000'
+                  }
                   strokeWidth="2"
                   strokeDasharray={
                     entry.type === 'Aqua Regia'

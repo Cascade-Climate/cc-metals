@@ -26,7 +26,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
               fontWeight: 'bold' 
             }}
           >
-            Application Rate
+            Total Feedstock Volume Deployed
           </Typography>
           <Box
             sx={{
@@ -98,7 +98,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke="black"
+                  stroke="#FF0000"
                   strokeWidth="2"
                 />
               </svg>
@@ -122,7 +122,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke="black"
+                  stroke="#0000FF"
                   strokeWidth="2"
                   strokeDasharray="4,4"
                 />
@@ -153,7 +153,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke="black"
+                  stroke="#FFA500"
                   strokeWidth="2"
                   strokeDasharray="1,1"
                 />

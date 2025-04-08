@@ -40,8 +40,19 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
           Math.abs(item.payload?.x - threshold) <
           getThresholdTolerance(threshold)
         ) {
+          const getColor = (name: string) => {
+            if (name.includes('Aqua Regia')) return '#0000FF';
+            if (name.includes('Other')) return '#FFA500';
+            return '#FF0000';
+          };
+
           return (
-            <Typography key={index} variant="caption" display="block">
+            <Typography 
+              key={index} 
+              variant="caption" 
+              display="block"
+              sx={{ color: getColor(item.name) }}
+            >
               {item.name.replace(/\[(\d+(?:\.\d+)?)\]/, '')} {threshold} mg/kg
             </Typography>
           );

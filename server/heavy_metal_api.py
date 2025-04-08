@@ -204,11 +204,9 @@ def calculate_normalized_kde(data, num_points=200):
 def get_elements(feedstock_type: str):
     """Get list of available elements based on feedstock type"""
     if feedstock_type == 'basalt':
-        elements = ['Ni', 'Cu', 'Zn', 'V', 'Pb', 'Co', 'Cd', 'Se', 'Cr', 'Mn', 'Sb',
-                   'Be', 'As', 'Ag', 'Hg']
+        elements = ['Ag', 'As', 'Be', 'Cd', 'Co', 'Cr', 'Cu', 'Hg', 'Mn', 'Ni', 'Pb', 'Sb', 'Se', 'V', 'Zn']
     elif feedstock_type == 'peridotite':
-        elements = ['Ni', 'Cu', 'Zn', 'V', 'Pb', 'Co', 'Cd', 'Se', 'Cr', 'Mn', 'Sb',
-                   'Be', 'As', 'Ag', 'Ba']
+        elements = ['Ag', 'As', 'Ba', 'Be', 'Cd', 'Co', 'Cr', 'Cu', 'Mn', 'Ni', 'Pb', 'Sb', 'Se', 'V', 'Zn']
     else:
         return {"error": "Invalid feedstock type. Must be either 'basalt' or 'peridotite'"}
     

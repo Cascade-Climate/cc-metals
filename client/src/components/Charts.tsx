@@ -82,7 +82,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 value: `${result.element} concentration (mg/kg)`,
                 position: 'bottom',
               }}
-              domain={[0, 'auto']}
+              domain={['auto', 'auto']}
               allowDataOverflow={true}
               tickCount={9}
               tick={{ fontSize: 12 }}
@@ -167,7 +167,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 position: 'bottom',
               }}
               domain={[
-                0,
+                'auto',
                 calculateDomainUpperBound(
                   Math.max(
                     ...Object.values(result.concentrations).map((kde) =>
@@ -201,7 +201,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 type="monotone"
                 dataKey="y"
                 name={`${entry.agency} (Total) [${entry.threshold}]`}
-                stroke="#000000"
+                stroke="#FF0000"
                 dot={false}
                 strokeWidth={2}
                 activeDot={false}
@@ -217,7 +217,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 type="monotone"
                 dataKey="y"
                 name={`${entry.agency} (Aqua Regia) [${entry.threshold}]`}
-                stroke="#000000"
+                stroke="#0000FF"
                 strokeDasharray="5,5"
                 dot={false}
                 strokeWidth={2}
@@ -234,7 +234,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 type="monotone"
                 dataKey="y"
                 name={`${entry.agency} (Other) [${entry.threshold}]`}
-                stroke="#000000"
+                stroke="#FFA500"
                 strokeDasharray="1,1"
                 dot={false}
                 strokeWidth={2}
