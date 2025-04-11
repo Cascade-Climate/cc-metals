@@ -30,9 +30,25 @@ const applicationRateColors = [
   '#00cc66', // bright green
 ];
 
+const regulationColors = [
+  '#CC3333', // vibrant dark red
+  '#CC8033', // burnt orange
+  '#AAAA33', // mustard
+  '#33AA33', // emerald green
+  '#3366CC', // royal blue
+  '#8833CC', // violet
+  '#CC3399', // fuchsia
+  '#996633', // brown
+  '#333333', // black
+  '#33CCAA', // turquoise
+];
+
 const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
   const [distributionXDomain, setDistributionXDomain] = useState<[number, number]>([0, 500]);
   const [concentrationXDomain, setConcentrationXDomain] = useState<[number, number]>([0, 500]);
+
+  // Create a consistent color mapping for agencies
+  const [agencyColorMap, setAgencyColorMap] = useState<Record<string, string>>({});
 
   const minDistributionXDomain = Math.min(
     ...result.distributions.feedstock.x,
@@ -68,6 +84,29 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     setDistributionXDomain([minDistributionXDomain, maxDistributionXDomain]);
     setConcentrationXDomain([minConcentrationXDomain, maxConcentrationXDomain]);
   }, [result, thresholds, minDistributionXDomain, maxDistributionXDomain, minConcentrationXDomain, maxConcentrationXDomain]);
+
+  useEffect(() => {
+    if (!thresholds) return;
+    
+    // Collect all unique agencies
+    const agencies = new Set<string>();
+    [...thresholds.Total, ...thresholds.Aqua_regia, ...thresholds.Other_very_strong_acid].forEach(entry => {
+      agencies.add(entry.agency);
+    });
+
+    // Assign colors to agencies
+    const colorMap: Record<string, string> = {};
+    Array.from(agencies).forEach((agency, index) => {
+      colorMap[agency] = regulationColors[index % regulationColors.length];
+    });
+    
+    setAgencyColorMap(colorMap);
+  }, [thresholds]);
+
+  // Get color for a specific agency
+  const getAgencyColor = (agency: string) => {
+    return agencyColorMap[agency] || '#000000'; // Default to black if not found
+  };
 
   const calculateDomainUpperBound = (max: number): number => {
     const exponent = Math.floor(Math.log10(max));
@@ -146,7 +185,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               ]}
               tick={false}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip agencyColorMap={agencyColorMap} />} />
             <Line
               data={result.distributions.feedstock.x.map((x, i) => ({
                 x,
@@ -237,7 +276,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               domain={[0, 'auto']}
               tick={false}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip agencyColorMap={agencyColorMap} />} />
             {thresholds?.Total.map((entry, index) => (
               <Line
                 key={`total-${index}`}
@@ -248,10 +287,10 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 type="monotone"
                 dataKey="y"
                 name={`${entry.agency} (Total) [${entry.threshold}]`}
-                stroke="#FF0000"
                 dot={false}
                 strokeWidth={2}
                 activeDot={false}
+                stroke={getAgencyColor(entry.agency)}
               />
             ))}
             {thresholds?.Aqua_regia.map((entry, index) => (
@@ -264,11 +303,11 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 type="monotone"
                 dataKey="y"
                 name={`${entry.agency} (Aqua Regia) [${entry.threshold}]`}
-                stroke="#0000FF"
                 strokeDasharray="5,5"
                 dot={false}
                 strokeWidth={2}
                 activeDot={false}
+                stroke={getAgencyColor(entry.agency)}
               />
             ))}
             {thresholds?.Other_very_strong_acid.map((entry, index) => (
@@ -281,11 +320,11 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 type="monotone"
                 dataKey="y"
                 name={`${entry.agency} (Other) [${entry.threshold}]`}
-                stroke="#FFA500"
                 strokeDasharray="1,1"
                 dot={false}
                 strokeWidth={2}
                 activeDot={false}
+                stroke={getAgencyColor(entry.agency)}
               />
             ))}
             {Object.entries(result.concentrations).map(([rate, kde], index) => (
@@ -316,7 +355,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
           />
         </Box>
       </Box>
-      <Regulations thresholds={thresholds} />
+      <Regulations thresholds={thresholds} agencyColorMap={agencyColorMap} />
     </Box>
   );
 };

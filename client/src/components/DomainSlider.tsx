@@ -23,7 +23,7 @@ const DomainSlider: React.FC<DomainSliderProps> = ({ onDomainChange, min, max })
   };
 
   return (
-    <Box sx={{ width: '100%'}}>
+    <Box sx={{ width: '100%' }}>
       <Box sx={{  width: '100%', px: 3 }} >
         <Slider
           value={value}

@@ -98,7 +98,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke="#FF0000"
+                  stroke="#000000"
                   strokeWidth="2"
                 />
               </svg>
@@ -122,7 +122,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke="#0000FF"
+                  stroke="#000000"
                   strokeWidth="2"
                   strokeDasharray="4,4"
                 />
@@ -153,7 +153,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke="#FFA500"
+                  stroke="#000000"
                   strokeWidth="2"
                   strokeDasharray="1,1"
                 />

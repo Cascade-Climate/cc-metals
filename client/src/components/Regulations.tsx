@@ -3,9 +3,10 @@ import { ThresholdResult } from '../services/metalsService';
 
 interface RegulationsProps {
   thresholds: ThresholdResult | null;
+  agencyColorMap: Record<string, string>;
 }
 
-const Regulations: React.FC<RegulationsProps> = ({ thresholds }) => {
+const Regulations: React.FC<RegulationsProps> = ({ thresholds, agencyColorMap }) => {
   if (!thresholds) return null;
   if (
     !thresholds.Total.length &&
@@ -43,9 +44,9 @@ const Regulations: React.FC<RegulationsProps> = ({ thresholds }) => {
           })),
         ]
           .sort((a, b) => a.threshold - b.threshold)
-          .map((entry, index) => (
+          .map((entry) => (
             <Box
-              key={`${entry.agency}-${entry.type}-${index}`}
+              key={`${entry.agency}-${entry.type}`}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -59,13 +60,7 @@ const Regulations: React.FC<RegulationsProps> = ({ thresholds }) => {
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke={
-                    entry.type === 'Aqua Regia'
-                      ? '#0000FF'
-                      : entry.type === 'Other'
-                        ? '#FFA500'
-                        : '#FF0000'
-                  }
+                  stroke={agencyColorMap[entry.agency] || '#000000'}
                   strokeWidth="2"
                   strokeDasharray={
                     entry.type === 'Aqua Regia'
@@ -76,7 +71,7 @@ const Regulations: React.FC<RegulationsProps> = ({ thresholds }) => {
                   }
                 />
               </svg>
-              <Typography variant="caption" whiteSpace="nowrap">
+              <Typography variant="caption" whiteSpace="nowrap" sx={{ color: agencyColorMap[entry.agency] || '#000000' }}>
                 {entry.agency} ({entry.threshold} mg/kg)
               </Typography>
             </Box>
