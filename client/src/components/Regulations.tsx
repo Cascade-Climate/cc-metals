@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { ThresholdResult } from '../services/metalsService';
+import HelperTooltip from './HelperTooltip';
 
 interface RegulationsProps {
   thresholds: ThresholdResult | null;
@@ -20,12 +21,21 @@ const Regulations: React.FC<RegulationsProps> = ({
 
   return (
     <Box sx={{ px: 4, pt: 2 }}>
-      <Typography
-        variant="subtitle2"
-        sx={{ textAlign: 'left', fontSize: '0.8rem', fontWeight: 'bold' }}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+        }}
       >
-        Regulations
-      </Typography>
+        <Typography
+          variant="subtitle2"
+          sx={{ textAlign: 'left', fontSize: '0.8rem', fontWeight: 'bold' }}
+        >
+          Regulations
+        </Typography>
+        <HelperTooltip title="These regulations are a preliminary compilation of soil concentration thresholds that are in national- or international-level legislation." />
+      </Box>
       <Box
         sx={{
           display: 'flex',

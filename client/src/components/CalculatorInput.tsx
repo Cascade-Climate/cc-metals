@@ -19,6 +19,7 @@ import CustomParameters from './CustomParameters';
 import PresetParameters from './PresetParameters';
 import ToggleMode from './ToggleMode';
 import defaultParameters from '../custom-parameters/defaultParameters';
+import HelperTooltip from './HelperTooltip';
 
 interface CalculatorInputProps {
   setResult: (result: CalculationResult) => void;
@@ -91,7 +92,17 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ setResult }) => {
 
   return (
     <Paper sx={{ p: 2, mb: 2, borderRadius: 0 }}>
-      <ToggleMode isCustom={isCustom} setIsCustom={setIsCustom} />
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          gap: 1,
+        }}
+      >
+        <ToggleMode isCustom={isCustom} setIsCustom={setIsCustom} />
+        <HelperTooltip title="In Preset mode, users are viewing hypothetical deployment scenarios using precompiled data on agricultural soils and feedstocks. In Custom mode, users are able to input their own measurements for soils and feedstocks and view a conservative estimate of metal accumulation from a deployment." />
+      </Box>
       {!isCustom ? (
         <PresetParameters
           feedstockType={feedstockType}

@@ -71,6 +71,27 @@ function App() {
           </Typography>
         </Box>
         <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+          <Box
+            sx={{
+              p: 2,
+              bgcolor: '#f8f9fa',
+              borderRadius: 1,
+              mx: 3,
+              my: 2,
+              border: '1px solid #e0e0e0',
+            }}
+          >
+            <Typography variant="body2" color="text.secondary" align="center">
+              The ERW-MAC provides a conservative first assessment only. It is
+              not a substitute for comprehensive site-specific analysis, expert
+              review, or regulatory compliance verification. The simplified
+              model intentionally excludes many factors that influence actual
+              metal behavior in soils (such as pH, organic matter content, and
+              redox conditions), and therefore should be used as one component
+              of a broader safety assessment process, not as a definitive
+              determination of deployment safety.
+            </Typography>
+          </Box>
           <MetalCalculator />
         </Box>
       </Box>

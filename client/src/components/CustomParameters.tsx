@@ -7,10 +7,12 @@ import {
   Select,
   MenuItem,
   Button,
+  Box,
 } from '@mui/material';
 import React from 'react';
 import { CustomCalculationParams } from '../services/metalsService';
 import defaultParameters from '../custom-parameters/defaultParameters';
+import HelperTooltip from './HelperTooltip';
 
 interface CustomParametersProps {
   customParams: CustomCalculationParams;
@@ -42,7 +44,12 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
           Soil Parameters
         </Typography>
         <Grid container spacing={2}>
-          <Grid>
+          <Grid
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
             <TextField
               size="small"
               sx={{
@@ -54,8 +61,17 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
               value={customParams.soil_conc}
               onChange={handleCustomParamChange('soil_conc')}
             />
+            <Box sx={{ ml: -2, mt: -7 }}>
+              <HelperTooltip title="This is the mean measured concentration of the metal in the soil, reported as mg/kg." />
+            </Box>
           </Grid>
-          <Grid minWidth={200}>
+          <Grid
+            minWidth={215}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
             <TextField
               fullWidth
               size="small"
@@ -68,8 +84,17 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
               value={customParams.soil_conc_sd}
               onChange={handleCustomParamChange('soil_conc_sd')}
             />
+            <Box sx={{ ml: -2, mt: -7 }}>
+              <HelperTooltip title="This is the error of your measured concentration of the metal in the soil, reported as one standard deviation from the mean." />
+            </Box>
           </Grid>
-          <Grid>
+          <Grid
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            width={95}
+          >
             <TextField
               size="small"
               sx={{
@@ -81,24 +106,19 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
               value={customParams.soil_d}
               onChange={handleCustomParamChange('soil_d')}
             />
+            <Box sx={{ ml: -2, mt: -7 }}>
+              <HelperTooltip title="This is the depth at which your feedstock will be distributed in the soil, reported as meters." />
+            </Box>
           </Grid>
-          <Grid>
+
+          <Grid
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            width={145}
+          >
             <TextField
-              fullWidth
-              size="small"
-              sx={{
-                '& .MuiInputBase-input': { fontSize: '0.8rem' },
-                '& .MuiInputLabel-root': { fontSize: '0.8rem' },
-              }}
-              label="Soil Depth Error (stdev m)"
-              type="number"
-              value={customParams.soil_d_err}
-              onChange={handleCustomParamChange('soil_d_err')}
-            />
-          </Grid>
-          <Grid>
-            <TextField
-              fullWidth
               size="small"
               sx={{
                 '& .MuiInputBase-input': { fontSize: '0.8rem' },
@@ -109,8 +129,17 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
               value={customParams.dbd}
               onChange={handleCustomParamChange('dbd')}
             />
+            <Box sx={{ ml: -2, mt: -7 }}>
+              <HelperTooltip title="This is the mean bulk density of your sampled soil, reported as g/cm^3." />
+            </Box>
           </Grid>
-          <Grid minWidth={190}>
+          <Grid
+            minWidth={205}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
             <TextField
               fullWidth
               size="small"
@@ -123,6 +152,9 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
               value={customParams.dbd_err}
               onChange={handleCustomParamChange('dbd_err')}
             />
+            <Box sx={{ ml: -2, mt: -7 }}>
+              <HelperTooltip title="This is the error of your bulk density of your sampled soil, reported as one standard deviation from the mean." />
+            </Box>
           </Grid>
         </Grid>
       </Grid>
@@ -133,7 +165,13 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
               Feedstock Parameters
             </Typography>
             <Grid container spacing={2}>
-              <Grid>
+              <Grid
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                width={165}
+              >
                 <TextField
                   fullWidth
                   size="small"
@@ -146,8 +184,17 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                   value={customParams.feed_conc}
                   onChange={handleCustomParamChange('feed_conc')}
                 />
+                <Box sx={{ ml: -2, mt: -7 }}>
+                  <HelperTooltip title="This is the mean measured concentration of the metal in your feedstock." />
+                </Box>
               </Grid>
-              <Grid minWidth={200}>
+              <Grid
+                minWidth={215}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
                 <TextField
                   fullWidth
                   size="small"
@@ -160,8 +207,17 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                   value={customParams.feed_conc_sd}
                   onChange={handleCustomParamChange('feed_conc_sd')}
                 />
+                <Box sx={{ ml: -2, mt: -7 }}>
+                  <HelperTooltip title="This is the error of your measured concentration of the metal in the feedstock, reported as one standard deviation from the mean." />
+                </Box>
               </Grid>
-              <Grid minWidth={170}>
+              <Grid
+                minWidth={210}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
                 <TextField
                   fullWidth
                   size="small"
@@ -169,11 +225,14 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                     '& .MuiInputBase-input': { fontSize: '0.8rem' },
                     '& .MuiInputLabel-root': { fontSize: '0.8rem' },
                   }}
-                  label="Ton Feedstock/Hectare (t/ha)"
+                  label="Cumulative Feedstock Application (t/ha)"
                   type="number"
                   value={customParams.application_rate}
                   onChange={handleCustomParamChange('application_rate')}
                 />
+                <Box sx={{ ml: -2, mt: -7 }}>
+                  <HelperTooltip title="This is the total cumulative volume of feedstock deployed per hectare in a single deployment. " />
+                </Box>
               </Grid>
             </Grid>
           </Grid>

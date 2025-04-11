@@ -1,22 +1,23 @@
-import { Box, Typography, Snackbar, Alert } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import { Alert, Box, Snackbar, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import {
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  Legend,
   Area,
   AreaChart,
+  Legend,
+  Line,
+  LineChart,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
 } from 'recharts';
 import { CalculationResult, ThresholdResult } from '../services/metalsService';
+import { formatNumber } from '../utils/formatNumber';
 import CustomLegend from './CustomLegend';
 import CustomTooltip from './CustomTooltip';
-import Regulations from './Regulations';
 import DomainSlider from './DomainSlider';
-import { formatNumber } from '../utils/formatNumber';
+import HelperTooltip from './HelperTooltip';
+import Regulations from './Regulations';
 
 interface ChartsProps {
   result: CalculationResult;
@@ -273,9 +274,19 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
       }}
     >
       <Box>
-        <Typography variant="subtitle1" align="center" mb={1}>
-          Feedstock and soil {result.element} distributions
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+          }}
+        >
+          <Typography variant="subtitle1" align="center">
+            Feedstock and soil {result.element} distributions
+          </Typography>
+          <HelperTooltip title="How frequently the selected metal is found in a given concentration in both soils and the selected feedstock." />
+        </Box>
         <Box sx={{ width: '100%' }}>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
@@ -318,7 +329,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 ]}
                 tick={false}
               />
-              <Tooltip
+              <RechartsTooltip
                 content={<CustomTooltip labelColorMap={labelColorMap} />}
               />
               <Area
@@ -362,14 +373,17 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
         <Box
           sx={{
             display: 'flex',
-            mb: 2,
+            my: 2,
             width: '100%',
             justifyContent: 'center',
+            alignItems: 'center',
+            gap: 1,
           }}
         >
-          <Typography variant="subtitle1" mt={2}>
+          <Typography variant="subtitle1">
             Soil {result.element} after {result.feedstock_type} application
           </Typography>
+          <HelperTooltip title="The concentration of the selected metal in the soil after deployment of the feedstock." />
         </Box>
         <Box
           sx={{
@@ -410,7 +424,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               domain={[0, 'auto']}
               tick={false}
             />
-            <Tooltip
+            <RechartsTooltip
               content={<CustomTooltip labelColorMap={labelColorMap} />}
             />
             {thresholds?.Total.map((entry, index) => (
