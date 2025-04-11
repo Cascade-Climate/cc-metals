@@ -345,6 +345,20 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 activeDot={false}
               />
             ))}
+            {/* Invisible filler line to allow tooltip hover over entire chart */}
+            <Line
+              data={Array.from({ length: 100 }, (_, i) => {
+                const step =
+                  (maxConcentrationXDomain - minConcentrationXDomain) / 99;
+                const x = minConcentrationXDomain + i * step;
+                return { x, y: 0 };
+              })}
+              type="monotone"
+              dataKey="y"
+              stroke="transparent"
+              dot={false}
+              strokeWidth={0}
+            />
           </LineChart>
         </ResponsiveContainer>
         <Box sx={{ width: '100%', pl: '55px', pr: '5px' }}>
