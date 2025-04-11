@@ -56,6 +56,27 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     {}
   );
 
+  const calculateDomainUpperBound = (max: number): number => {
+    const exponent = Math.floor(Math.log10(max));
+    const fraction = max / Math.pow(10, exponent);
+    let scaleFactor = 1;
+
+    if (fraction <= 1.2) scaleFactor = 1.2;
+    else if (fraction <= 1.5) scaleFactor = 1.5;
+    else if (fraction <= 2) scaleFactor = 2;
+    else if (fraction <= 2.5) scaleFactor = 2.5;
+    else if (fraction <= 3) scaleFactor = 3;
+    else if (fraction <= 4) scaleFactor = 4;
+    else if (fraction <= 5) scaleFactor = 5;
+    else if (fraction <= 6) scaleFactor = 6;
+    else if (fraction <= 7) scaleFactor = 7;
+    else if (fraction <= 8) scaleFactor = 8;
+    else if (fraction <= 9) scaleFactor = 9;
+    else scaleFactor = 10;
+
+    return scaleFactor * Math.pow(10, exponent);
+  };
+
   const minDistributionXDomain = Math.min(
     ...result.distributions.feedstock.x,
     ...result.distributions.soil.x
@@ -65,37 +86,36 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     ...result.distributions.soil.x
   );
 
-  const minConcentration = Math.min(
+  const initialMinConcentrationXDomain = Math.min(
     ...Object.values(result.concentrations).flatMap((kde) => kde.x)
   );
-  const maxConcentration = Math.max(
-    ...Object.values(result.concentrations).flatMap((kde) => kde.x)
+  const initialMaxConcentrationXDomain = calculateDomainUpperBound(
+    Math.max(...Object.values(result.concentrations).flatMap((kde) => kde.x))
   );
 
-  const minConcentrationXDomain = Math.min(
-    minConcentration,
-    ...(thresholds?.Total?.map((t) => t.threshold) || []),
-    ...(thresholds?.Aqua_regia?.map((t) => t.threshold) || []),
-    ...(thresholds?.Other_very_strong_acid?.map((t) => t.threshold) || [])
-  );
-  const maxConcentrationXDomain = Math.max(
-    maxConcentration,
-    ...(thresholds?.Total?.map((t) => t.threshold) || []),
-    ...(thresholds?.Aqua_regia?.map((t) => t.threshold) || []),
-    ...(thresholds?.Other_very_strong_acid?.map((t) => t.threshold) || [])
+  // const minConcentrationXDomain = Math.min(
+  //   minConcentration,
+  //   ...(thresholds?.Total?.map((t) => t.threshold) || []),
+  //   ...(thresholds?.Aqua_regia?.map((t) => t.threshold) || []),
+  //   ...(thresholds?.Other_very_strong_acid?.map((t) => t.threshold) || [])
+  // );
+  const minConcentrationXDomain = 0;
+  const maxConcentrationXDomain = calculateDomainUpperBound(
+    Math.max(
+      initialMaxConcentrationXDomain,
+      ...(thresholds?.Total?.map((t) => t.threshold) || []),
+      ...(thresholds?.Aqua_regia?.map((t) => t.threshold) || []),
+      ...(thresholds?.Other_very_strong_acid?.map((t) => t.threshold) || [])
+    )
   );
 
   useEffect(() => {
     setDistributionXDomain([minDistributionXDomain, maxDistributionXDomain]);
-    setConcentrationXDomain([minConcentrationXDomain, maxConcentrationXDomain]);
-  }, [
-    result,
-    thresholds,
-    minDistributionXDomain,
-    maxDistributionXDomain,
-    minConcentrationXDomain,
-    maxConcentrationXDomain,
-  ]);
+    setConcentrationXDomain([
+      initialMinConcentrationXDomain,
+      initialMaxConcentrationXDomain,
+    ]);
+  }, [result, thresholds]);
 
   useEffect(() => {
     if (!thresholds) return;
@@ -357,6 +377,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               dataKey="y"
               stroke="transparent"
               dot={false}
+              activeDot={false}
               strokeWidth={0}
             />
           </LineChart>
@@ -366,6 +387,8 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
             onDomainChange={setConcentrationXDomain}
             min={minConcentrationXDomain}
             max={maxConcentrationXDomain}
+            initialMin={initialMinConcentrationXDomain}
+            initialMax={initialMaxConcentrationXDomain}
           />
         </Box>
       </Box>

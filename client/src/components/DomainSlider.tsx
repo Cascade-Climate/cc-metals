@@ -6,18 +6,25 @@ interface DomainSliderProps {
   onDomainChange: (domain: [number, number]) => void;
   max: number;
   min: number;
+  initialMin?: number;
+  initialMax?: number;
 }
 
 const DomainSlider: React.FC<DomainSliderProps> = ({
   onDomainChange,
   min,
   max,
+  initialMin,
+  initialMax,
 }) => {
-  const [value, setValue] = useState<[number, number]>([min, max]);
+  const [value, setValue] = useState<[number, number]>([
+    initialMin ?? min,
+    initialMax ?? max,
+  ]);
 
   useEffect(() => {
-    setValue([min, max]);
-  }, [min, max]);
+    setValue([initialMin ?? min, initialMax ?? max]);
+  }, [initialMin, initialMax, min, max]);
 
   const handleChange = (_event: Event, newValue: number | number[]) => {
     if (Array.isArray(newValue)) {
