@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Snackbar, Alert } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import {
   Line,
@@ -51,10 +51,65 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     [number, number]
   >([0, 500]);
 
+  // Add sync counters. This is used to trigger a re-render of the DomainSlider component
+  const [distributionSyncCounter, setDistributionSyncCounter] = useState(0);
+  const [concentrationSyncCounter, setConcentrationSyncCounter] = useState(0);
+
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
   // Create a consistent color mapping for agencies
-  const [agencyColorMap, setAgencyColorMap] = useState<Record<string, string>>(
+  const [labelColorMap, setLabelColorMap] = useState<Record<string, string>>(
     {}
   );
+
+  const syncDistributionWithConcentrationDomain = () => {
+    const hasOverlap = !(
+      concentrationXDomain[1] < minDistributionXDomain ||
+      concentrationXDomain[0] > maxDistributionXDomain
+    );
+
+    if (!hasOverlap) {
+      setToastMessage('Cannot sync: No overlap between domains');
+      setToastOpen(true);
+      return;
+    }
+
+    const newDistributionDomain: [number, number] = [
+      Math.max(concentrationXDomain[0], minDistributionXDomain),
+      Math.min(concentrationXDomain[1], maxDistributionXDomain),
+    ];
+    setDistributionXDomain(newDistributionDomain);
+    setInitialMinDistributionXDomain(newDistributionDomain[0]);
+    setInitialMaxDistributionXDomain(newDistributionDomain[1]);
+    setDistributionSyncCounter((prev) => prev + 1);
+  };
+
+  const syncConcentrationWithDistributionDomain = () => {
+    const hasOverlap = !(
+      distributionXDomain[1] < minConcentrationXDomain ||
+      distributionXDomain[0] > maxConcentrationXDomain
+    );
+
+    if (!hasOverlap) {
+      setToastMessage('Cannot sync: No overlap between  domains');
+      setToastOpen(true);
+      return;
+    }
+
+    const newConcentrationDomain: [number, number] = [
+      Math.max(distributionXDomain[0], minConcentrationXDomain),
+      Math.min(distributionXDomain[1], maxConcentrationXDomain),
+    ];
+    setConcentrationXDomain(newConcentrationDomain);
+    setInitialMinConcentrationXDomain(newConcentrationDomain[0]);
+    setInitialMaxConcentrationXDomain(newConcentrationDomain[1]);
+    setConcentrationSyncCounter((prev) => prev + 1);
+  };
+
+  const handleToastClose = () => {
+    setToastOpen(false);
+  };
 
   const calculateDomainUpperBound = (max: number): number => {
     const exponent = Math.floor(Math.log10(max));
@@ -86,12 +141,24 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     ...result.distributions.soil.x
   );
 
-  const initialMinConcentrationXDomain = Math.min(
-    ...Object.values(result.concentrations).flatMap((kde) => kde.x)
-  );
-  const initialMaxConcentrationXDomain = calculateDomainUpperBound(
-    Math.max(...Object.values(result.concentrations).flatMap((kde) => kde.x))
-  );
+  const [initialMinConcentrationXDomain, setInitialMinConcentrationXDomain] =
+    useState(
+      Math.min(...Object.values(result.concentrations).flatMap((kde) => kde.x))
+    );
+
+  const [initialMaxConcentrationXDomain, setInitialMaxConcentrationXDomain] =
+    useState(
+      calculateDomainUpperBound(
+        Math.max(
+          ...Object.values(result.concentrations).flatMap((kde) => kde.x)
+        )
+      )
+    );
+
+  const [initialMinDistributionXDomain, setInitialMinDistributionXDomain] =
+    useState(minDistributionXDomain);
+  const [initialMaxDistributionXDomain, setInitialMaxDistributionXDomain] =
+    useState(maxDistributionXDomain);
 
   // const minConcentrationXDomain = Math.min(
   //   minConcentration,
@@ -121,27 +188,27 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     if (!thresholds) return;
 
     // Collect all unique agencies
-    const agencies = new Set<string>();
+    const labels = new Set<string>();
     [
       ...thresholds.Total,
       ...thresholds.Aqua_regia,
       ...thresholds.Other_very_strong_acid,
     ].forEach((entry) => {
-      agencies.add(entry.agency);
+      labels.add(entry.label);
     });
 
     // Assign colors to agencies
     const colorMap: Record<string, string> = {};
-    Array.from(agencies).forEach((agency, index) => {
-      colorMap[agency] = regulationColors[index % regulationColors.length];
+    Array.from(labels).forEach((label, index) => {
+      colorMap[label] = regulationColors[index % regulationColors.length];
     });
 
-    setAgencyColorMap(colorMap);
+    setLabelColorMap(colorMap);
   }, [thresholds]);
 
-  // Get color for a specific agency
-  const getAgencyColor = (agency: string) => {
-    return agencyColorMap[agency] || '#000000'; // Default to black if not found
+  // Get color for a specific label
+  const getLabelColor = (label: string) => {
+    return labelColorMap[label] || '#000000'; // Default to black if not found
   };
 
   return (
@@ -203,7 +270,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 tick={false}
               />
               <Tooltip
-                content={<CustomTooltip agencyColorMap={agencyColorMap} />}
+                content={<CustomTooltip labelColorMap={labelColorMap} />}
               />
               <Line
                 data={result.distributions.feedstock.x.map((x, i) => ({
@@ -238,6 +305,10 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               onDomainChange={setDistributionXDomain}
               min={minDistributionXDomain}
               max={maxDistributionXDomain}
+              initialMin={initialMinDistributionXDomain}
+              initialMax={initialMaxDistributionXDomain}
+              onClickSyncButton={syncDistributionWithConcentrationDomain}
+              syncCounter={distributionSyncCounter}
             />
           </Box>
         </Box>
@@ -295,7 +366,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               tick={false}
             />
             <Tooltip
-              content={<CustomTooltip agencyColorMap={agencyColorMap} />}
+              content={<CustomTooltip labelColorMap={labelColorMap} />}
             />
             {thresholds?.Total.map((entry, index) => (
               <Line
@@ -306,11 +377,11 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 ]}
                 type="monotone"
                 dataKey="y"
-                name={`${entry.agency} (Total) [${entry.threshold}]`}
+                name={`${entry.label} (Total) [${entry.threshold}]`}
                 dot={false}
                 strokeWidth={2}
                 activeDot={false}
-                stroke={getAgencyColor(entry.agency)}
+                stroke={getLabelColor(entry.label)}
               />
             ))}
             {thresholds?.Aqua_regia.map((entry, index) => (
@@ -322,12 +393,12 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 ]}
                 type="monotone"
                 dataKey="y"
-                name={`${entry.agency} (Aqua Regia) [${entry.threshold}]`}
+                name={`${entry.label} (Aqua Regia) [${entry.threshold}]`}
                 strokeDasharray="5,5"
                 dot={false}
                 strokeWidth={2}
                 activeDot={false}
-                stroke={getAgencyColor(entry.agency)}
+                stroke={getLabelColor(entry.label)}
               />
             ))}
             {thresholds?.Other_very_strong_acid.map((entry, index) => (
@@ -339,12 +410,12 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 ]}
                 type="monotone"
                 dataKey="y"
-                name={`${entry.agency} (Other) [${entry.threshold}]`}
+                name={`${entry.label} (Other) [${entry.threshold}]`}
                 strokeDasharray="1,1"
                 dot={false}
                 strokeWidth={2}
                 activeDot={false}
-                stroke={getAgencyColor(entry.agency)}
+                stroke={getLabelColor(entry.label)}
               />
             ))}
             {Object.entries(result.concentrations).map(([rate, kde], index) => (
@@ -389,10 +460,28 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
             max={maxConcentrationXDomain}
             initialMin={initialMinConcentrationXDomain}
             initialMax={initialMaxConcentrationXDomain}
+            onClickSyncButton={syncConcentrationWithDistributionDomain}
+            syncCounter={concentrationSyncCounter}
           />
         </Box>
       </Box>
-      <Regulations thresholds={thresholds} agencyColorMap={agencyColorMap} />
+      <Regulations thresholds={thresholds} labelColorMap={labelColorMap} />
+
+      {/* Add Snackbar for toast notifications */}
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity="warning"
+          sx={{ width: '100%' }}
+        >
+          {toastMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

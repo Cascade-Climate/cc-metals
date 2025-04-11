@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL as string;
 
 export interface CustomCalculationParams {
   element: string;
@@ -43,7 +43,7 @@ export interface CalculationResult {
 }
 
 export interface ThresholdEntry {
-  agency: string;
+  label: string;
   threshold: number;
 }
 

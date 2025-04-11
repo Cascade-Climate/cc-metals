@@ -3,12 +3,12 @@ import { ThresholdResult } from '../services/metalsService';
 
 interface RegulationsProps {
   thresholds: ThresholdResult | null;
-  agencyColorMap: Record<string, string>;
+  labelColorMap: Record<string, string>;
 }
 
 const Regulations: React.FC<RegulationsProps> = ({
   thresholds,
-  agencyColorMap,
+  labelColorMap,
 }) => {
   if (!thresholds) return null;
   if (
@@ -49,7 +49,7 @@ const Regulations: React.FC<RegulationsProps> = ({
           .sort((a, b) => a.threshold - b.threshold)
           .map((entry) => (
             <Box
-              key={`${entry.agency}-${entry.type}`}
+              key={`${entry.label}-${entry.type}`}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -63,7 +63,7 @@ const Regulations: React.FC<RegulationsProps> = ({
                   y1="1"
                   x2="20"
                   y2="1"
-                  stroke={agencyColorMap[entry.agency] || '#000000'}
+                  stroke={labelColorMap[entry.label] || '#000000'}
                   strokeWidth="2"
                   strokeDasharray={
                     entry.type === 'Aqua Regia'
@@ -77,9 +77,9 @@ const Regulations: React.FC<RegulationsProps> = ({
               <Typography
                 variant="caption"
                 whiteSpace="nowrap"
-                sx={{ color: agencyColorMap[entry.agency] || '#000000' }}
+                sx={{ color: labelColorMap[entry.label] || '#000000' }}
               >
-                {entry.agency} ({entry.threshold} mg/kg)
+                {entry.label} ({entry.threshold} mg/kg)
               </Typography>
             </Box>
           ))}

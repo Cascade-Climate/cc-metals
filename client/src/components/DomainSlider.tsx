@@ -1,13 +1,15 @@
 import { formatNumber } from '../utils/formatNumber';
-import { Box, Slider, Typography } from '@mui/material';
+import { Box, Button, Slider, Typography } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 
 interface DomainSliderProps {
   onDomainChange: (domain: [number, number]) => void;
   max: number;
   min: number;
-  initialMin?: number;
-  initialMax?: number;
+  initialMin: number;
+  initialMax: number;
+  onClickSyncButton: () => void;
+  syncCounter: number;
 }
 
 const DomainSlider: React.FC<DomainSliderProps> = ({
@@ -16,6 +18,8 @@ const DomainSlider: React.FC<DomainSliderProps> = ({
   max,
   initialMin,
   initialMax,
+  onClickSyncButton,
+  syncCounter,
 }) => {
   const [value, setValue] = useState<[number, number]>([
     initialMin ?? min,
@@ -24,7 +28,7 @@ const DomainSlider: React.FC<DomainSliderProps> = ({
 
   useEffect(() => {
     setValue([initialMin ?? min, initialMax ?? max]);
-  }, [initialMin, initialMax, min, max]);
+  }, [initialMin, initialMax, min, max, syncCounter]);
 
   const handleChange = (_event: Event, newValue: number | number[]) => {
     if (Array.isArray(newValue)) {
@@ -35,6 +39,36 @@ const DomainSlider: React.FC<DomainSliderProps> = ({
 
   return (
     <Box sx={{ width: '100%' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%',
+        }}
+      >
+        <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
+          min: {formatNumber(min)}
+        </Typography>
+        <Box>
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            sx={{
+              fontSize: '0.5rem',
+              textTransform: 'none',
+              ml: 0.5,
+              fontWeight: 'bold',
+            }}
+            onClick={onClickSyncButton}
+          >
+            Sync x-axis with other graph
+          </Button>
+        </Box>
+        <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
+          max: {formatNumber(max)}
+        </Typography>
+      </Box>
       <Box sx={{ width: '100%', px: 3 }}>
         <Slider
           value={value}
@@ -56,21 +90,6 @@ const DomainSlider: React.FC<DomainSliderProps> = ({
             },
           }}
         />
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          width: '100%',
-          mt: -1,
-        }}
-      >
-        <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
-          min: {formatNumber(min)}
-        </Typography>
-        <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
-          max: {formatNumber(max)}
-        </Typography>
       </Box>
     </Box>
   );

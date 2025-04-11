@@ -5,13 +5,13 @@ import { formatNumber } from '../utils/formatNumber';
 interface CustomTooltipProps {
   active?: boolean;
   payload?: { name: string; payload: { x: number } }[];
-  agencyColorMap: Record<string, string>;
+  labelColorMap: Record<string, string>;
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
   active,
   payload,
-  agencyColorMap,
+  labelColorMap,
 }) => {
   if (!active || !payload) return null;
   // Weird edge case where the payload is based on the y value of 0, causing the tooltip
@@ -45,9 +45,9 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           Math.abs(item.payload?.x - threshold) <
           getThresholdTolerance(threshold)
         ) {
-          // Extract agency name from the item name (format: "Agency (Type) [Threshold]")
-          const agency = item.name.split(' (')[0];
-          const color = agencyColorMap[agency] || '#000000'; // Default to black if not found
+          // Extract label name from the item name (format: "Label (Type) [Threshold]")
+          const label = item.name.split(' (')[0];
+          const color = labelColorMap[label] || '#000000'; // Default to black if not found
 
           return (
             <Typography

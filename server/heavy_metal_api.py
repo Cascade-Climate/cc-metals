@@ -29,7 +29,7 @@ peridotite_feedstock_data = pd.read_csv('data/cleaned_feedstock_data_peridotite.
 threshold_data = pd.read_csv('data/model_thresholds.csv')
 
 class ThresholdEntry(BaseModel):
-    agency: str
+    label: str
     threshold: float
 
 class ThresholdResult(BaseModel):
@@ -169,7 +169,7 @@ def get_thresh(element) -> ThresholdResult:
             continue
             
         threshold_entry = ThresholdEntry(
-            agency=row['Label'],
+            label=row['Label'],
             threshold=threshold_value
         )
         
