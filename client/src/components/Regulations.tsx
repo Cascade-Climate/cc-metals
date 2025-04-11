@@ -15,7 +15,7 @@ const Regulations: React.FC<RegulationsProps> = ({ thresholds }) => {
     return null;
 
   return (
-    <Box sx={{ px: 4 }}>
+    <Box sx={{ px: 4, pt: 2 }}>
       <Typography
         variant="subtitle2"
         sx={{ textAlign: 'left', fontSize: '0.8rem', fontWeight: 'bold' }}

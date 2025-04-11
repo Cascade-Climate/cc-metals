@@ -12,6 +12,7 @@ import {
 import CustomParameters from './CustomParameters';
 import PresetParameters from './PresetParameters';
 import ToggleMode from './ToggleMode';
+import defaultParameters from '../custom-parameters/defaultParameters';
 
 interface CalculatorInputProps {
   setResult: (result: CalculationResult) => void;
@@ -24,19 +25,7 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ setResult }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isCustom, setIsCustom] = useState<boolean>(false);
 
-  const [customParams, setCustomParams] = useState<CustomCalculationParams>({
-    element: '',
-    feedstock_type: '',
-    soil_conc: 50,
-    soil_conc_sd: 1,
-    soil_d: 0.18,
-    soil_d_err: 0.02,
-    dbd: 1300,
-    dbd_err: 100,
-    feed_conc: 1500,
-    feed_conc_sd: 250,
-    application_rate: 2,
-  });
+  const [customParams, setCustomParams] = useState<CustomCalculationParams>(defaultParameters);
 
   useEffect(() => {
     const loadElements = async () => {

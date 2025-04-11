@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Line,
   LineChart,
@@ -13,6 +13,8 @@ import { CalculationResult, ThresholdResult } from '../services/metalsService';
 import CustomLegend from './CustomLegend';
 import CustomTooltip from './CustomTooltip';
 import Regulations from './Regulations';
+import DomainSlider from './DomainSlider';
+import { formatNumber } from '../utils/formatNumber';
 
 interface ChartsProps {
   result: CalculationResult;
@@ -29,6 +31,44 @@ const applicationRateColors = [
 ];
 
 const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
+  const [distributionXDomain, setDistributionXDomain] = useState<[number, number]>([0, 500]);
+  const [concentrationXDomain, setConcentrationXDomain] = useState<[number, number]>([0, 500]);
+
+  const minDistributionXDomain = Math.min(
+    ...result.distributions.feedstock.x,
+    ...result.distributions.soil.x
+  );
+  const maxDistributionXDomain = Math.max(
+    ...result.distributions.feedstock.x,
+    ...result.distributions.soil.x
+  );
+
+  const minConcentration = Math.min(
+    ...Object.values(result.concentrations).flatMap(kde => kde.x),
+  );
+  const maxConcentration = Math.max(
+    ...Object.values(result.concentrations).flatMap(kde => kde.x),
+  );
+
+  
+  const minConcentrationXDomain = Math.min(
+    minConcentration,
+    ...(thresholds?.Total?.map(t => t.threshold) || []),
+    ...(thresholds?.Aqua_regia?.map(t => t.threshold) || []),
+    ...(thresholds?.Other_very_strong_acid?.map(t => t.threshold) || [])
+  );
+  const maxConcentrationXDomain = Math.max(
+    maxConcentration,
+    ...(thresholds?.Total?.map(t => t.threshold) || []),
+    ...(thresholds?.Aqua_regia?.map(t => t.threshold) || []),
+    ...(thresholds?.Other_very_strong_acid?.map(t => t.threshold) || [])
+  );
+
+  useEffect(() => {
+    setDistributionXDomain([minDistributionXDomain, maxDistributionXDomain]);
+    setConcentrationXDomain([minConcentrationXDomain, maxConcentrationXDomain]);
+  }, [result, thresholds, minDistributionXDomain, maxDistributionXDomain, minConcentrationXDomain, maxConcentrationXDomain]);
+
   const calculateDomainUpperBound = (max: number): number => {
     const exponent = Math.floor(Math.log10(max));
     const fraction = max / Math.pow(10, exponent);
@@ -57,16 +97,18 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
         sm: 2,
         md: 4,
         lg: 5,
-      }
+      },
+      pb: 2
     }}>
       <Box>
         <Typography variant="subtitle1" align="center" mb={1}>
           Feedstock and soil {result.element} distributions
         </Typography>
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
-            <Legend
-              verticalAlign="top"
+        <Box sx={{ width: '100%'}}>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
+              <Legend
+                verticalAlign="top"
               align="right"
               iconType="plainline"
               wrapperStyle={{ fontSize: '12px' }}
@@ -82,14 +124,15 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 value: `${result.element} concentration (mg/kg)`,
                 position: 'bottom',
               }}
-              domain={['auto', 'auto']}
+              domain={distributionXDomain}
               allowDataOverflow={true}
               tickCount={9}
               tick={{ fontSize: 12 }}
+              tickFormatter={formatNumber}
             />
             <YAxis
               label={{
-                value: 'Density',
+                value: 'Probability Density',
                 angle: -90,
                 position: 'outsideLeft',
                 fontSize: 12,
@@ -103,6 +146,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               ]}
               tick={false}
             />
+            <Tooltip content={<CustomTooltip />} />
             <Line
               data={result.distributions.feedstock.x.map((x, i) => ({
                 x,
@@ -114,6 +158,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               name="Feedstock"
               dot={false}
               strokeWidth={2}
+              activeDot={false}
             />
             <Line
               data={result.distributions.soil.x.map((x, i) => ({
@@ -126,9 +171,19 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               name="Soil"
               dot={false}
               strokeWidth={2}
+              activeDot={false}
             />
-          </LineChart>
-        </ResponsiveContainer>
+            </LineChart>
+          </ResponsiveContainer>
+        <Box sx={{  width: '100%', pl: "55px", pr: "5px" }} >
+          <DomainSlider 
+            onDomainChange={setDistributionXDomain}
+            min={minDistributionXDomain}
+            max={maxDistributionXDomain}
+          />
+        </Box>
+        </Box>
+
       </Box>
       <Box>
         <Box
@@ -166,23 +221,15 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 value: `${result.element} concentration (mg/kg)`,
                 position: 'bottom',
               }}
-              domain={[
-                'auto',
-                calculateDomainUpperBound(
-                  Math.max(
-                    ...Object.values(result.concentrations).map((kde) =>
-                      Math.max(...kde.x)
-                    )
-                  )
-                ),
-              ]}
+              domain={concentrationXDomain}
               allowDataOverflow={true}
               tickCount={9}
               tick={{ fontSize: 12 }}
+              tickFormatter={formatNumber}
             />
             <YAxis
               label={{
-                value: 'Density',
+                value: 'Probability Density',
                 angle: -90,
                 position: 'outsideLeft',
                 fontSize: 12,
@@ -261,6 +308,13 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
             ))}
           </LineChart>
         </ResponsiveContainer>
+        <Box sx={{ width: '100%', pl: "55px", pr: "5px" }} >
+          <DomainSlider 
+            onDomainChange={setConcentrationXDomain}
+            min={minConcentrationXDomain}
+            max={maxConcentrationXDomain}
+          />
+        </Box>
       </Box>
       <Regulations thresholds={thresholds} />
     </Box>

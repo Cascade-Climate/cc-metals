@@ -1,14 +1,17 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
+import { formatNumber } from '../utils/formatNumber';
 
 interface CustomTooltipProps {
   active?: boolean;
   payload?: { name: string; payload: { x: number } }[];
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({
+  active,
+  payload,
+}) => {
   if (!active || !payload) return null;
-
   // Weird edge case where the payload is based on the y value of 0, causing the tooltip
   // to show every item. This is a hacky way to check for that.
   const isEdgeCase = (() => {
@@ -63,20 +66,39 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
     .filter(Boolean);
 
   const showTooltip = !isEdgeCase && thresholdLines.length > 0;
+  const xValue = payload[0]?.payload?.x;
 
   return (
-    <Box
-      sx={{
-        bgcolor: showTooltip ? 'white' : 'transparent',
-        p: 1,
-        border: showTooltip ? '1px solid #ccc' : 'none',
-        borderRadius: 1,
-        boxShadow: showTooltip ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-        opacity: showTooltip ? 1 : 0.01,
-      }}
-    >
-      {thresholdLines}
-    </Box>
+    <>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: -30,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          bgcolor: 'white',
+          p: 0.5,
+          border: '1px solid #ccc',
+          borderRadius: 1,
+          fontSize: '0.7rem',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {xValue ? `${formatNumber(xValue)} mg/kg` : ''}
+      </Box>
+      <Box
+        sx={{
+          bgcolor: showTooltip ? 'white' : 'transparent',
+          p: 1,
+          border: showTooltip ? '1px solid #ccc' : 'none',
+          borderRadius: 1,
+          boxShadow: showTooltip ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+          opacity: showTooltip ? 1 : 0.01,
+        }}
+      >
+        {thresholdLines}
+      </Box>
+    </>
   );
 };
 

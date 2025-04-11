@@ -1,6 +1,7 @@
-import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import React from 'react';
 import { CustomCalculationParams } from '../services/metalsService';
+import defaultParameters from '../custom-parameters/defaultParameters';
 
 interface CustomParametersProps {
   customParams: CustomCalculationParams;
@@ -14,14 +15,19 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
   const handleCustomParamChange =
     (field: keyof CustomCalculationParams) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
       setCustomParams({
         ...customParams,
-        [field]: parseFloat(event.target.value) || 0,
+        [field]: value === '' ? '' : parseFloat(value) || 0,
       });
     };
 
+  const handleReset = () => {
+    setCustomParams({ ...defaultParameters });
+  };
+
   return (
-    <Grid container spacing={1} sx={{ width: '100%', mt: 1 }}>
+    <Grid container spacing={1} sx={{ width: '100%', mt: 2 }}>
       <Grid>
         <Typography variant="subtitle2" mb={1.5}>
           Soil Parameters
@@ -40,7 +46,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
               onChange={handleCustomParamChange('soil_conc')}
             />
           </Grid>
-          <Grid minWidth={170}>
+          <Grid minWidth={200}>
             <TextField
               fullWidth
               size="small"
@@ -48,7 +54,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                 '& .MuiInputBase-input': { fontSize: '0.8rem' },
                 '& .MuiInputLabel-root': { fontSize: '0.8rem' },
               }}
-              label="Metal Concentration Error (stdev)"
+              label="Metal Concentration Error (stdev mg/kg)"
               type="number"
               value={customParams.soil_conc_sd}
               onChange={handleCustomParamChange('soil_conc_sd')}
@@ -75,7 +81,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                 '& .MuiInputBase-input': { fontSize: '0.8rem' },
                 '& .MuiInputLabel-root': { fontSize: '0.8rem' },
               }}
-              label="Soil Depth Error (stdev)"
+              label="Soil Depth Error (stdev m)"
               type="number"
               value={customParams.soil_d_err}
               onChange={handleCustomParamChange('soil_d_err')}
@@ -95,7 +101,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
               onChange={handleCustomParamChange('dbd')}
             />
           </Grid>
-          <Grid>
+          <Grid minWidth={190}>
             <TextField
               fullWidth
               size="small"
@@ -103,7 +109,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                 '& .MuiInputBase-input': { fontSize: '0.8rem' },
                 '& .MuiInputLabel-root': { fontSize: '0.8rem' },
               }}
-              label="Soil Bulk Density Error (stdev)"
+              label="Soil Bulk Density Error (stdev g/cm^3)"
               type="number"
               value={customParams.dbd_err}
               onChange={handleCustomParamChange('dbd_err')}
@@ -132,7 +138,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                   onChange={handleCustomParamChange('feed_conc')}
                 />
               </Grid>
-              <Grid minWidth={170}>
+              <Grid minWidth={200}>
                 <TextField
                   fullWidth
                   size="small"
@@ -140,7 +146,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                     '& .MuiInputBase-input': { fontSize: '0.8rem' },
                     '& .MuiInputLabel-root': { fontSize: '0.8rem' },
                   }}
-                  label="Metal Concentration Error (stdev)"
+                  label="Metal Concentration Error (stdev mg/kg)"
                   type="number"
                   value={customParams.feed_conc_sd}
                   onChange={handleCustomParamChange('feed_conc_sd')}
@@ -194,7 +200,7 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                         {elem}
                       </MenuItem>
                     ))}
-                    <MenuItem value="[Custom element]">[Custom element]</MenuItem>
+                    <MenuItem value="[Custom element]">No regulation</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -215,6 +221,20 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                     })
                   }
                 />
+              </Grid>
+              <Grid sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleReset}
+                  sx={{ 
+                    fontSize: '0.5rem', 
+                    borderRadius: '25px',
+                    height: '25px',
+                  }}
+                >
+                  Reset to Default
+                </Button>
               </Grid>
             </Grid>
           </Grid>

@@ -169,7 +169,7 @@ def get_thresh(element) -> ThresholdResult:
             continue
             
         threshold_entry = ThresholdEntry(
-            agency=row['Agency'],
+            agency=row['Label'],
             threshold=threshold_value
         )
         
