@@ -8,6 +8,8 @@ import {
   XAxis,
   YAxis,
   Legend,
+  Area,
+  AreaChart,
 } from 'recharts';
 import { CalculationResult, ThresholdResult } from '../services/metalsService';
 import CustomLegend from './CustomLegend';
@@ -211,6 +213,53 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     return labelColorMap[label] || '#000000'; // Default to black if not found
   };
 
+  // Create discretized histogram data
+  const createHistogramData = (
+    xValues: number[],
+    yValues: number[],
+    binCount: number = 25
+  ) => {
+    if (xValues.length === 0) return [];
+
+    // Find min and max values
+    const minX = Math.min(...xValues);
+    const maxX = Math.max(...xValues);
+    const binWidth = (maxX - minX) / binCount;
+
+    // Create bins
+    const bins: { x: number; y: number }[] = [];
+
+    for (let i = 0; i < binCount; i++) {
+      const binStart = minX + i * binWidth;
+      const binEnd = binStart + binWidth;
+      const binCenter = binStart + binWidth / 2;
+
+      // Sum all y values that fall into this bin
+      let sumY = 0;
+      for (let j = 0; j < xValues.length; j++) {
+        if (xValues[j] >= binStart && xValues[j] < binEnd) {
+          sumY += yValues[j];
+        }
+      }
+
+      bins.push({ x: binCenter, y: sumY });
+    }
+
+    return bins;
+  };
+
+  const feedstockHistogram = createHistogramData(
+    result.distributions.feedstock.x,
+    result.distributions.feedstock.y,
+    30
+  );
+
+  const soilHistogram = createHistogramData(
+    result.distributions.soil.x,
+    result.distributions.soil.y,
+    30
+  );
+
   return (
     <Box
       sx={{
@@ -229,7 +278,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
         </Typography>
         <Box sx={{ width: '100%' }}>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
+            <AreaChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
               <Legend
                 verticalAlign="top"
                 align="right"
@@ -272,33 +321,29 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               <Tooltip
                 content={<CustomTooltip labelColorMap={labelColorMap} />}
               />
-              <Line
-                data={result.distributions.feedstock.x.map((x, i) => ({
-                  x,
-                  y: result.distributions.feedstock.y[i],
-                }))}
-                type="monotone"
+              <Area
+                data={feedstockHistogram}
+                type="stepAfter"
                 dataKey="y"
                 stroke="#2ca02c"
+                fill="#2ca02c"
                 name="Feedstock"
-                dot={false}
-                strokeWidth={2}
                 activeDot={false}
+                fillOpacity={0.8}
+                connectNulls={true}
               />
-              <Line
-                data={result.distributions.soil.x.map((x, i) => ({
-                  x,
-                  y: result.distributions.soil.y[i],
-                }))}
-                type="monotone"
+              <Area
+                data={soilHistogram}
+                type="stepAfter"
                 dataKey="y"
                 stroke="#7f7f7f"
+                fill="#7f7f7f"
                 name="Soil"
-                dot={false}
-                strokeWidth={2}
                 activeDot={false}
+                fillOpacity={0.8}
+                connectNulls={true}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
           <Box sx={{ width: '100%', pl: '55px', pr: '5px' }}>
             <DomainSlider
