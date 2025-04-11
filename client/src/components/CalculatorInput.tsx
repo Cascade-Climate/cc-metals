@@ -1,4 +1,10 @@
-import { Button, CircularProgress, Paper, Typography, Box } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  Paper,
+  Typography,
+  Box,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import colors from '../assets/colors';
 import {
@@ -25,7 +31,8 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ setResult }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isCustom, setIsCustom] = useState<boolean>(false);
 
-  const [customParams, setCustomParams] = useState<CustomCalculationParams>(defaultParameters);
+  const [customParams, setCustomParams] =
+    useState<CustomCalculationParams>(defaultParameters);
 
   useEffect(() => {
     const loadElements = async () => {
@@ -118,15 +125,15 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ setResult }) => {
         {loading && (
           <Typography
             variant="body2"
-            sx={{ 
-              fontStyle: 'italic', 
+            sx={{
+              fontStyle: 'italic',
               color: 'text.secondary',
               fontSize: {
                 xs: '0.75rem',
                 sm: '0.8rem',
                 md: '0.85rem',
-                lg: '0.9rem'
-              }
+                lg: '0.9rem',
+              },
             }}
           >
             Please wait. Calculations can take up to 15 seconds.

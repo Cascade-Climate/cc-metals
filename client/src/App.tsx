@@ -59,12 +59,12 @@ function App() {
               fontWeight: 'normal',
               whiteSpace: 'nowrap',
               fontSize: {
-                xs: '1rem',    // Extra small screens
+                xs: '1rem', // Extra small screens
                 sm: '1.25rem', // Small screens
-                md: '1.5rem',  // Medium screens
+                md: '1.5rem', // Medium screens
                 lg: '1.75rem', // Large screens
-                xl: '2rem'     // Extra large screens
-              }
+                xl: '2rem', // Extra large screens
+              },
             }}
           >
             Metal Accumulation Calculator (MAC)

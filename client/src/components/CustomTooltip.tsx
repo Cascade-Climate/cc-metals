@@ -50,9 +50,9 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           const color = agencyColorMap[agency] || '#000000'; // Default to black if not found
 
           return (
-            <Typography 
-              key={index} 
-              variant="caption" 
+            <Typography
+              key={index}
+              variant="caption"
               display="block"
               sx={{ color }}
             >

@@ -6,9 +6,13 @@ interface DomainSliderProps {
   onDomainChange: (domain: [number, number]) => void;
   max: number;
   min: number;
-} 
+}
 
-const DomainSlider: React.FC<DomainSliderProps> = ({ onDomainChange, min, max }) => {
+const DomainSlider: React.FC<DomainSliderProps> = ({
+  onDomainChange,
+  min,
+  max,
+}) => {
   const [value, setValue] = useState<[number, number]>([min, max]);
 
   useEffect(() => {
@@ -24,7 +28,7 @@ const DomainSlider: React.FC<DomainSliderProps> = ({ onDomainChange, min, max })
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{  width: '100%', px: 3 }} >
+      <Box sx={{ width: '100%', px: 3 }}>
         <Slider
           value={value}
           onChange={handleChange}
@@ -42,15 +46,22 @@ const DomainSlider: React.FC<DomainSliderProps> = ({ onDomainChange, min, max })
             },
             '& .MuiSlider-rail': {
               height: 2,
-            }
+            },
           }}
         />
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' ,mt:-1}}>
-        <Typography variant="caption" sx={{ fontStyle: 'italic'}}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%',
+          mt: -1,
+        }}
+      >
+        <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
           min: {formatNumber(min)}
         </Typography>
-        <Typography variant="caption" sx={{ fontStyle: 'italic'}}>
+        <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
           max: {formatNumber(max)}
         </Typography>
       </Box>
@@ -58,4 +69,4 @@ const DomainSlider: React.FC<DomainSliderProps> = ({ onDomainChange, min, max })
   );
 };
 
-export default DomainSlider; 
+export default DomainSlider;

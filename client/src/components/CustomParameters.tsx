@@ -1,4 +1,13 @@
-import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
+import {
+  Grid,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+} from '@mui/material';
 import React from 'react';
 import { CustomCalculationParams } from '../services/metalsService';
 import defaultParameters from '../custom-parameters/defaultParameters';
@@ -186,16 +195,32 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                     }
                     label="Element"
                     sx={{
-                      '& .MuiSelect-select': { 
+                      '& .MuiSelect-select': {
                         fontSize: '0.8rem',
                         maxHeight: '15px',
                         display: 'flex',
-                        alignItems: 'center'
+                        alignItems: 'center',
                       },
-                      '& .MuiMenuItem-root': { fontSize: '0.8rem' }
+                      '& .MuiMenuItem-root': { fontSize: '0.8rem' },
                     }}
                   >
-                    {['Ag', 'As', 'Be', 'Cd', 'Co', 'Cr', 'Cu', 'Hg', 'Mn', 'Ni', 'Pb', 'Sb', 'Se', 'V', 'Zn'].map((elem) => (
+                    {[
+                      'Ag',
+                      'As',
+                      'Be',
+                      'Cd',
+                      'Co',
+                      'Cr',
+                      'Cu',
+                      'Hg',
+                      'Mn',
+                      'Ni',
+                      'Pb',
+                      'Sb',
+                      'Se',
+                      'V',
+                      'Zn',
+                    ].map((elem) => (
                       <MenuItem key={elem} value={elem}>
                         {elem}
                       </MenuItem>
@@ -222,13 +247,19 @@ const CustomParameters: React.FC<CustomParametersProps> = ({
                   }
                 />
               </Grid>
-              <Grid sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Grid
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
                 <Button
                   variant="outlined"
                   size="small"
                   onClick={handleReset}
-                  sx={{ 
-                    fontSize: '0.5rem', 
+                  sx={{
+                    fontSize: '0.5rem',
                     borderRadius: '25px',
                     height: '25px',
                   }}

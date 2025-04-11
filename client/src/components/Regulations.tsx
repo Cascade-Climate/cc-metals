@@ -6,7 +6,10 @@ interface RegulationsProps {
   agencyColorMap: Record<string, string>;
 }
 
-const Regulations: React.FC<RegulationsProps> = ({ thresholds, agencyColorMap }) => {
+const Regulations: React.FC<RegulationsProps> = ({
+  thresholds,
+  agencyColorMap,
+}) => {
   if (!thresholds) return null;
   if (
     !thresholds.Total.length &&
@@ -71,7 +74,11 @@ const Regulations: React.FC<RegulationsProps> = ({ thresholds, agencyColorMap })
                   }
                 />
               </svg>
-              <Typography variant="caption" whiteSpace="nowrap" sx={{ color: agencyColorMap[entry.agency] || '#000000' }}>
+              <Typography
+                variant="caption"
+                whiteSpace="nowrap"
+                sx={{ color: agencyColorMap[entry.agency] || '#000000' }}
+              >
                 {entry.agency} ({entry.threshold} mg/kg)
               </Typography>
             </Box>

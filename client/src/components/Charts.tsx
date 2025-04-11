@@ -44,11 +44,17 @@ const regulationColors = [
 ];
 
 const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
-  const [distributionXDomain, setDistributionXDomain] = useState<[number, number]>([0, 500]);
-  const [concentrationXDomain, setConcentrationXDomain] = useState<[number, number]>([0, 500]);
+  const [distributionXDomain, setDistributionXDomain] = useState<
+    [number, number]
+  >([0, 500]);
+  const [concentrationXDomain, setConcentrationXDomain] = useState<
+    [number, number]
+  >([0, 500]);
 
   // Create a consistent color mapping for agencies
-  const [agencyColorMap, setAgencyColorMap] = useState<Record<string, string>>({});
+  const [agencyColorMap, setAgencyColorMap] = useState<Record<string, string>>(
+    {}
+  );
 
   const minDistributionXDomain = Math.min(
     ...result.distributions.feedstock.x,
@@ -60,37 +66,47 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
   );
 
   const minConcentration = Math.min(
-    ...Object.values(result.concentrations).flatMap(kde => kde.x),
+    ...Object.values(result.concentrations).flatMap((kde) => kde.x)
   );
   const maxConcentration = Math.max(
-    ...Object.values(result.concentrations).flatMap(kde => kde.x),
+    ...Object.values(result.concentrations).flatMap((kde) => kde.x)
   );
 
-  
   const minConcentrationXDomain = Math.min(
     minConcentration,
-    ...(thresholds?.Total?.map(t => t.threshold) || []),
-    ...(thresholds?.Aqua_regia?.map(t => t.threshold) || []),
-    ...(thresholds?.Other_very_strong_acid?.map(t => t.threshold) || [])
+    ...(thresholds?.Total?.map((t) => t.threshold) || []),
+    ...(thresholds?.Aqua_regia?.map((t) => t.threshold) || []),
+    ...(thresholds?.Other_very_strong_acid?.map((t) => t.threshold) || [])
   );
   const maxConcentrationXDomain = Math.max(
     maxConcentration,
-    ...(thresholds?.Total?.map(t => t.threshold) || []),
-    ...(thresholds?.Aqua_regia?.map(t => t.threshold) || []),
-    ...(thresholds?.Other_very_strong_acid?.map(t => t.threshold) || [])
+    ...(thresholds?.Total?.map((t) => t.threshold) || []),
+    ...(thresholds?.Aqua_regia?.map((t) => t.threshold) || []),
+    ...(thresholds?.Other_very_strong_acid?.map((t) => t.threshold) || [])
   );
 
   useEffect(() => {
     setDistributionXDomain([minDistributionXDomain, maxDistributionXDomain]);
     setConcentrationXDomain([minConcentrationXDomain, maxConcentrationXDomain]);
-  }, [result, thresholds, minDistributionXDomain, maxDistributionXDomain, minConcentrationXDomain, maxConcentrationXDomain]);
+  }, [
+    result,
+    thresholds,
+    minDistributionXDomain,
+    maxDistributionXDomain,
+    minConcentrationXDomain,
+    maxConcentrationXDomain,
+  ]);
 
   useEffect(() => {
     if (!thresholds) return;
-    
+
     // Collect all unique agencies
     const agencies = new Set<string>();
-    [...thresholds.Total, ...thresholds.Aqua_regia, ...thresholds.Other_very_strong_acid].forEach(entry => {
+    [
+      ...thresholds.Total,
+      ...thresholds.Aqua_regia,
+      ...thresholds.Other_very_strong_acid,
+    ].forEach((entry) => {
       agencies.add(entry.agency);
     });
 
@@ -99,7 +115,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     Array.from(agencies).forEach((agency, index) => {
       colorMap[agency] = regulationColors[index % regulationColors.length];
     });
-    
+
     setAgencyColorMap(colorMap);
   }, [thresholds]);
 
@@ -108,121 +124,103 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     return agencyColorMap[agency] || '#000000'; // Default to black if not found
   };
 
-  const calculateDomainUpperBound = (max: number): number => {
-    const exponent = Math.floor(Math.log10(max));
-    const fraction = max / Math.pow(10, exponent);
-    let scaleFactor = 1;
-
-    if (fraction <= 1.2) scaleFactor = 1.2;
-    else if (fraction <= 1.5) scaleFactor = 1.5;
-    else if (fraction <= 2) scaleFactor = 2;
-    else if (fraction <= 2.5) scaleFactor = 2.5;
-    else if (fraction <= 3) scaleFactor = 3;
-    else if (fraction <= 4) scaleFactor = 4;
-    else if (fraction <= 5) scaleFactor = 5;
-    else if (fraction <= 6) scaleFactor = 6;
-    else if (fraction <= 7) scaleFactor = 7;
-    else if (fraction <= 8) scaleFactor = 8;
-    else if (fraction <= 9) scaleFactor = 9;
-    else scaleFactor = 10;
-
-    return scaleFactor * Math.pow(10, exponent);
-  };
-
   return (
-    <Box sx={{ 
-      pr: {
-        xs: 2,
-        sm: 2,
-        md: 4,
-        lg: 5,
-      },
-      pb: 2
-    }}>
+    <Box
+      sx={{
+        pr: {
+          xs: 2,
+          sm: 2,
+          md: 4,
+          lg: 5,
+        },
+        pb: 2,
+      }}
+    >
       <Box>
         <Typography variant="subtitle1" align="center" mb={1}>
           Feedstock and soil {result.element} distributions
         </Typography>
-        <Box sx={{ width: '100%'}}>
+        <Box sx={{ width: '100%' }}>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
               <Legend
                 verticalAlign="top"
-              align="right"
-              iconType="plainline"
-              wrapperStyle={{ fontSize: '12px' }}
-              formatter={(value) => (
-                <span style={{ color: 'black' }}>{value}</span>
-              )}
-            />
-            <XAxis
-              dataKey="x"
-              type="number"
-              label={{
-                fontSize: 12,
-                value: `${result.element} concentration (mg/kg)`,
-                position: 'bottom',
-              }}
-              domain={distributionXDomain}
-              allowDataOverflow={true}
-              tickCount={9}
-              tick={{ fontSize: 12 }}
-              tickFormatter={formatNumber}
-            />
-            <YAxis
-              label={{
-                value: 'Probability Density',
-                angle: -90,
-                position: 'outsideLeft',
-                fontSize: 12,
-              }}
-              domain={[
-                0,
-                Math.max(
-                  ...result.distributions.feedstock.y,
-                  ...result.distributions.soil.y
-                ) * 1.1,
-              ]}
-              tick={false}
-            />
-            <Tooltip content={<CustomTooltip agencyColorMap={agencyColorMap} />} />
-            <Line
-              data={result.distributions.feedstock.x.map((x, i) => ({
-                x,
-                y: result.distributions.feedstock.y[i],
-              }))}
-              type="monotone"
-              dataKey="y"
-              stroke="#2ca02c"
-              name="Feedstock"
-              dot={false}
-              strokeWidth={2}
-              activeDot={false}
-            />
-            <Line
-              data={result.distributions.soil.x.map((x, i) => ({
-                x,
-                y: result.distributions.soil.y[i],
-              }))}
-              type="monotone"
-              dataKey="y"
-              stroke="#7f7f7f"
-              name="Soil"
-              dot={false}
-              strokeWidth={2}
-              activeDot={false}
-            />
+                align="right"
+                iconType="plainline"
+                wrapperStyle={{ fontSize: '12px' }}
+                formatter={(value) => (
+                  <span style={{ color: 'black' }}>{value}</span>
+                )}
+              />
+              <XAxis
+                dataKey="x"
+                type="number"
+                label={{
+                  fontSize: 12,
+                  value: `${result.element} concentration (mg/kg)`,
+                  position: 'bottom',
+                }}
+                domain={distributionXDomain}
+                allowDataOverflow={true}
+                tickCount={9}
+                tick={{ fontSize: 12 }}
+                tickFormatter={formatNumber}
+              />
+              <YAxis
+                label={{
+                  value: 'Probability Density',
+                  angle: -90,
+                  position: 'outsideLeft',
+                  fontSize: 12,
+                }}
+                domain={[
+                  0,
+                  Math.max(
+                    ...result.distributions.feedstock.y,
+                    ...result.distributions.soil.y
+                  ) * 1.1,
+                ]}
+                tick={false}
+              />
+              <Tooltip
+                content={<CustomTooltip agencyColorMap={agencyColorMap} />}
+              />
+              <Line
+                data={result.distributions.feedstock.x.map((x, i) => ({
+                  x,
+                  y: result.distributions.feedstock.y[i],
+                }))}
+                type="monotone"
+                dataKey="y"
+                stroke="#2ca02c"
+                name="Feedstock"
+                dot={false}
+                strokeWidth={2}
+                activeDot={false}
+              />
+              <Line
+                data={result.distributions.soil.x.map((x, i) => ({
+                  x,
+                  y: result.distributions.soil.y[i],
+                }))}
+                type="monotone"
+                dataKey="y"
+                stroke="#7f7f7f"
+                name="Soil"
+                dot={false}
+                strokeWidth={2}
+                activeDot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
-        <Box sx={{  width: '100%', pl: "55px", pr: "5px" }} >
-          <DomainSlider 
-            onDomainChange={setDistributionXDomain}
-            min={minDistributionXDomain}
-            max={maxDistributionXDomain}
-          />
+          <Box sx={{ width: '100%', pl: '55px', pr: '5px' }}>
+            <DomainSlider
+              onDomainChange={setDistributionXDomain}
+              min={minDistributionXDomain}
+              max={maxDistributionXDomain}
+            />
+          </Box>
         </Box>
-        </Box>
-
       </Box>
       <Box>
         <Box
@@ -276,7 +274,9 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               domain={[0, 'auto']}
               tick={false}
             />
-            <Tooltip content={<CustomTooltip agencyColorMap={agencyColorMap} />} />
+            <Tooltip
+              content={<CustomTooltip agencyColorMap={agencyColorMap} />}
+            />
             {thresholds?.Total.map((entry, index) => (
               <Line
                 key={`total-${index}`}
@@ -347,8 +347,8 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
             ))}
           </LineChart>
         </ResponsiveContainer>
-        <Box sx={{ width: '100%', pl: "55px", pr: "5px" }} >
-          <DomainSlider 
+        <Box sx={{ width: '100%', pl: '55px', pr: '5px' }}>
+          <DomainSlider
             onDomainChange={setConcentrationXDomain}
             min={minConcentrationXDomain}
             max={maxConcentrationXDomain}

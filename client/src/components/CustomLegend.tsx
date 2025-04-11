@@ -16,14 +16,14 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
         <Box>
           <Typography
             variant="subtitle2"
-            sx={{ 
-              textAlign: 'right', 
+            sx={{
+              textAlign: 'right',
               fontSize: {
                 xs: '0.7rem',
                 sm: '0.8rem',
-                md: '0.9rem'
-              }, 
-              fontWeight: 'bold' 
+                md: '0.9rem',
+              },
+              fontWeight: 'bold',
             }}
           >
             Total Feedstock Volume Deployed
@@ -45,15 +45,15 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                 <Box
                   sx={{ width: 20, height: 2, bgcolor: colors[index % 10] }}
                 />
-                <Typography 
-                  variant="caption" 
+                <Typography
+                  variant="caption"
                   whiteSpace="nowrap"
                   sx={{
                     fontSize: {
                       xs: '0.6rem',
                       sm: '0.7rem',
-                      md: '0.75rem'
-                    }
+                      md: '0.75rem',
+                    },
                   }}
                 >
                   {rate} t/ha
@@ -65,14 +65,14 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
         <Box>
           <Typography
             variant="subtitle2"
-            sx={{ 
-              textAlign: 'right', 
+            sx={{
+              textAlign: 'right',
               fontSize: {
                 xs: '0.7rem',
                 sm: '0.8rem',
-                md: '0.9rem'
-              }, 
-              fontWeight: 'bold' 
+                md: '0.9rem',
+              },
+              fontWeight: 'bold',
             }}
           >
             Extraction Type
@@ -102,14 +102,14 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   strokeWidth="2"
                 />
               </svg>
-              <Typography 
+              <Typography
                 variant="caption"
                 sx={{
                   fontSize: {
                     xs: '0.6rem',
                     sm: '0.7rem',
-                    md: '0.75rem'
-                  }
+                    md: '0.75rem',
+                  },
                 }}
               >
                 Total
@@ -127,14 +127,14 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   strokeDasharray="4,4"
                 />
               </svg>
-              <Typography 
+              <Typography
                 variant="caption"
                 sx={{
                   fontSize: {
                     xs: '0.6rem',
                     sm: '0.7rem',
-                    md: '0.75rem'
-                  }
+                    md: '0.75rem',
+                  },
                 }}
               >
                 Aqua Regia
@@ -158,14 +158,14 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                   strokeDasharray="1,1"
                 />
               </svg>
-              <Typography 
+              <Typography
                 variant="caption"
                 sx={{
                   fontSize: {
                     xs: '0.6rem',
                     sm: '0.7rem',
-                    md: '0.75rem'
-                  }
+                    md: '0.75rem',
+                  },
                 }}
               >
                 Other (Very Strong Acid)
