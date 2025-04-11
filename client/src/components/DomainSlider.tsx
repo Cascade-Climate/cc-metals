@@ -10,6 +10,7 @@ interface DomainSliderProps {
   initialMax: number;
   onClickSyncButton: () => void;
   syncCounter: number;
+  minDistance?: number;
 }
 
 const DomainSlider: React.FC<DomainSliderProps> = ({
@@ -20,6 +21,7 @@ const DomainSlider: React.FC<DomainSliderProps> = ({
   initialMax,
   onClickSyncButton,
   syncCounter,
+  minDistance = 0.2,
 }) => {
   const [value, setValue] = useState<[number, number]>([
     initialMin ?? min,
@@ -30,11 +32,25 @@ const DomainSlider: React.FC<DomainSliderProps> = ({
     setValue([initialMin ?? min, initialMax ?? max]);
   }, [initialMin, initialMax, min, max, syncCounter]);
 
-  const handleChange = (_event: Event, newValue: number | number[]) => {
-    if (Array.isArray(newValue)) {
-      setValue(newValue as [number, number]);
-      onDomainChange(newValue as [number, number]);
+  const handleChange = (
+    _event: Event,
+    newValue: number | number[],
+    activeThumb: number
+  ) => {
+    if (!Array.isArray(newValue)) return;
+
+    // Apply minimum distance constraint
+    if (newValue[1] - newValue[0] < minDistance) {
+      if (activeThumb === 0) {
+        const clamped = Math.min(newValue[0], max - minDistance);
+        newValue = [clamped, clamped + minDistance];
+      } else {
+        const clamped = Math.max(newValue[1], min + minDistance);
+        newValue = [clamped - minDistance, clamped];
+      }
     }
+    setValue(newValue as [number, number]);
+    onDomainChange(newValue as [number, number]);
   };
 
   return (
