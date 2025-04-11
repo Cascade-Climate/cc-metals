@@ -78,7 +78,7 @@ const DomainSlider: React.FC<DomainSliderProps> = ({
             }}
             onClick={onClickSyncButton}
           >
-            Sync x-axis with other graph
+            Sync x-axis
           </Button>
         </Box>
         <Typography variant="caption" sx={{ fontStyle: 'italic' }}>

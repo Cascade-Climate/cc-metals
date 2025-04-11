@@ -276,7 +276,7 @@ def calculate_custom(params: CustomCalculationParams):
     rng = np.random.default_rng()
     feedstock_dist = rng.normal(loc=params.feed_conc, scale=params.feed_conc_sd, size=n)
     soil_dist = rng.normal(loc=params.soil_conc, scale=params.soil_conc_sd, size=n)
-    dbd_dist = rng.normal(loc=params.dbd, scale=params.dbd_err, size=n)
+    dbd_dist = rng.normal(loc=params.dbd * 1000, scale=params.dbd_err * 1000, size=n)
     soil_d_dist = rng.normal(loc=params.soil_d, scale=params.soil_d_err, size=n)
     
     # Calculate KDEs for feedstock and soil distributions
