@@ -293,11 +293,12 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
               <Legend
                 verticalAlign="top"
                 align="right"
-                iconType="plainline"
+                iconType="square"
                 wrapperStyle={{ fontSize: '12px' }}
                 formatter={(value) => (
                   <span style={{ color: 'black' }}>{value}</span>
                 )}
+                iconSize={12}
               />
               <XAxis
                 dataKey="x"

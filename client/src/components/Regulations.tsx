@@ -57,9 +57,9 @@ const Regulations: React.FC<RegulationsProps> = ({
           })),
         ]
           .sort((a, b) => a.threshold - b.threshold)
-          .map((entry) => (
+          .map((entry, index) => (
             <Box
-              key={`${entry.label}-${entry.type}`}
+              key={`${entry.label}-${entry.type}-${index}`}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
