@@ -35,7 +35,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
                 fontWeight: 'bold',
               }}
             >
-              Total Feedstock Volume Deployed
+              Total Feedstock Area Deployed
             </Typography>
             <HelperTooltip title="This is the cumulative amount of feedstock that has been added to a single deployment site. Note that this does not have a time component, and should not be read as “annual application rate”." />
           </Box>
