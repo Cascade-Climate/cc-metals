@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import MetalCalculator from './components/MetalCalculator';
 import Logo from './assets/logo.png';
 import colors from './assets/colors';
+import Button from '@mui/material/Button';
 
 const theme = createTheme({
   palette: {
@@ -17,7 +18,6 @@ const theme = createTheme({
   },
 });
 
-// Define the header height
 const headerHeight = '64px';
 
 function App() {
@@ -41,7 +41,8 @@ function App() {
             bgcolor: 'primary.dark',
             display: 'flex',
             alignItems: 'center',
-            px: 3,
+            px: { xs: 1, sm: 2, md: 3 },
+            gap: { xs: 1, sm: 2, md: 3 },
           }}
         >
           <Box
@@ -54,21 +55,82 @@ function App() {
           <Typography
             variant="h5"
             sx={{
-              p: 3,
               color: 'white',
               fontWeight: 'normal',
-              whiteSpace: 'nowrap',
               fontSize: {
-                xs: '1rem', // Extra small screens
-                sm: '1.25rem', // Small screens
-                md: '1.5rem', // Medium screens
-                lg: '1.75rem', // Large screens
-                xl: '2rem', // Extra large screens
+                xs: '0.9rem',
+                sm: '1rem',
+                md: '1.2rem',
+                lg: '1.75rem',
+                xl: '2rem',
+                lineHeight: '1',
               },
             }}
           >
             Metal Accumulation Calculator (MAC)
           </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: { xs: 0.5, sm: 1, md: 2 },
+              ml: 'auto',
+            }}
+          >
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{
+                color: 'white',
+                borderColor: 'white',
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+                lineHeight: '1',
+              }}
+              onClick={() =>
+                window.open(
+                  'https://docs.google.com/presentation/d/1j0jZSA7_1sBXzOz0lurVcXbam4Rwn7NTF798JnmkvbU/edit#slide=id.p',
+                  '_blank'
+                )
+              }
+            >
+              Preset Model Examples
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{
+                color: 'white',
+                borderColor: 'white',
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+              onClick={() => window.open('#', '_blank')}
+            >
+              Tutorial
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{
+                color: 'white',
+                borderColor: 'white',
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+              onClick={() => window.open('#', '_blank')}
+            >
+              Blog
+            </Button>
+          </Box>
         </Box>
         <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
           <Box

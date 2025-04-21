@@ -121,7 +121,7 @@ const CalculatorInput: React.FC<CalculatorInputProps> = ({ setResult }) => {
         <Button
           variant="contained"
           onClick={handleCalculate}
-          disabled={loading}
+          disabled={loading || (!selectedElement && !isCustom)}
           startIcon={loading ? <CircularProgress size={20} /> : null}
           sx={{
             bgcolor: colors.Green.Light,
