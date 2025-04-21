@@ -91,7 +91,7 @@ function App() {
               }}
               onClick={() =>
                 window.open(
-                  'https://docs.google.com/presentation/d/1j0jZSA7_1sBXzOz0lurVcXbam4Rwn7NTF798JnmkvbU/edit#slide=id.p',
+                  'https://cascadeclimate.org/Cascade-Climate_ERW-MAC%20preset%20model%20results%20slides.pdf',
                   '_blank'
                 )
               }
@@ -126,7 +126,12 @@ function App() {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 },
               }}
-              onClick={() => window.open('#', '_blank')}
+              onClick={() =>
+                window.open(
+                  'https://cascadeclimate.org/blog/metal-accumulation-calculator',
+                  '_blank'
+                )
+              }
             >
               Blog
             </Button>
