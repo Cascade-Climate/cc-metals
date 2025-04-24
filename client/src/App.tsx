@@ -110,7 +110,12 @@ function App() {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 },
               }}
-              onClick={() => window.open('#', '_blank')}
+              onClick={() =>
+                window.open(
+                  'https://drive.google.com/file/d/1uML9WhcXbxwG0pTAT2oMycefvwVJ2Iy7/view',
+                  '_blank'
+                )
+              }
             >
               Tutorial
             </Button>
