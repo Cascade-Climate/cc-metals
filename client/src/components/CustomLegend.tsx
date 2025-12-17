@@ -48,29 +48,31 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
               flexWrap: 'wrap',
             }}
           >
-            {Object.keys(concentrations).map((rate, index) => (
-              <Box
-                key={rate}
-                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-              >
+            {Object.keys(concentrations)
+              .sort((rateA, rateB) => parseFloat(rateA) - parseFloat(rateB))
+              .map((rate, index) => (
                 <Box
-                  sx={{ width: 20, height: 2, bgcolor: colors[index % 10] }}
-                />
-                <Typography
-                  variant="caption"
-                  whiteSpace="nowrap"
-                  sx={{
-                    fontSize: {
-                      xs: '0.6rem',
-                      sm: '0.7rem',
-                      md: '0.75rem',
-                    },
-                  }}
+                  key={rate}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                 >
-                  {rate} t/ha
-                </Typography>
-              </Box>
-            ))}
+                  <Box
+                    sx={{ width: 20, height: 2, bgcolor: colors[index % 10] }}
+                  />
+                  <Typography
+                    variant="caption"
+                    whiteSpace="nowrap"
+                    sx={{
+                      fontSize: {
+                        xs: '0.6rem',
+                        sm: '0.7rem',
+                        md: '0.75rem',
+                      },
+                    }}
+                  >
+                    {rate} t/ha
+                  </Typography>
+                </Box>
+              ))}
           </Box>
         </Box>
         <Box>

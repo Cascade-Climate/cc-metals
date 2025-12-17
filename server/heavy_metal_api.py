@@ -283,10 +283,27 @@ def calculate_custom(params: CustomCalculationParams):
     feedstock_x, feedstock_y = calculate_normalized_kde(feedstock_dist)
     soil_x, soil_y = calculate_normalized_kde(soil_dist)
 
+    # Generate application rates at intervals up to 100 t/ha
+    # e.g., if input is 20 t/ha, generate: 20, 40, 60, 80, 100
+    base_rate = params.application_rate
+    max_rate = 100.0
+    max_intervals = 5
+    
+    application_rates = []
+    multiplier = 1
+    while multiplier <= max_intervals:
+        rate = base_rate * multiplier
+        if rate > max_rate:
+            break
+        application_rates.append(rate)
+        multiplier += 1
+    
+    # Calculate concentrations for each application rate
     concentrations = {}
-    conc_list = calc_element_conc_dist(params.application_rate, dbd_dist, soil_d_dist, feedstock_dist, soil_dist)
-    x_kde, y_kde = calculate_normalized_kde(np.array(conc_list))
-    concentrations[str(params.application_rate)] = {
+    for rate in application_rates:
+        conc_list = calc_element_conc_dist(rate, dbd_dist, soil_d_dist, feedstock_dist, soil_dist)
+        x_kde, y_kde = calculate_normalized_kde(np.array(conc_list))
+        concentrations[str(rate)] = {
             "x": x_kde,
             "y": y_kde
         }

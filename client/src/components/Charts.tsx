@@ -179,12 +179,30 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
     )
   );
 
+  // Update initial domain values and reset domains when result or thresholds change
   useEffect(() => {
-    setDistributionXDomain([minDistributionXDomain, maxDistributionXDomain]);
-    setConcentrationXDomain([
-      initialMinConcentrationXDomain,
-      initialMaxConcentrationXDomain,
-    ]);
+    const newMinConcentration = Math.min(
+      ...Object.values(result.concentrations).flatMap((kde) => kde.x)
+    );
+    const newMaxConcentration = calculateDomainUpperBound(
+      Math.max(...Object.values(result.concentrations).flatMap((kde) => kde.x))
+    );
+    const newMinDistribution = Math.min(
+      ...result.distributions.feedstock.x,
+      ...result.distributions.soil.x
+    );
+    const newMaxDistribution = Math.max(
+      ...result.distributions.feedstock.x,
+      ...result.distributions.soil.x
+    );
+    // Update initial values for DomainSlider components
+    setInitialMinConcentrationXDomain(newMinConcentration);
+    setInitialMaxConcentrationXDomain(newMaxConcentration);
+    setInitialMinDistributionXDomain(newMinDistribution);
+    setInitialMaxDistributionXDomain(newMaxDistribution);
+    // Reset domains to full range when result changes
+    setDistributionXDomain([newMinDistribution, newMaxDistribution]);
+    setConcentrationXDomain([newMinConcentration, newMaxConcentration]);
   }, [result, thresholds]);
 
   useEffect(() => {
@@ -478,24 +496,26 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 stroke={getLabelColor(entry.label)}
               />
             ))}
-            {Object.entries(result.concentrations).map(([rate, kde], index) => (
-              <Line
-                key={rate}
-                data={kde.x.map((x, i) => ({
-                  x,
-                  y: kde.y[i],
-                }))}
-                type="monotone"
-                dataKey="y"
-                name={`${rate} t/ha`}
-                stroke={
-                  applicationRateColors[index % applicationRateColors.length]
-                }
-                dot={false}
-                strokeWidth={2}
-                activeDot={false}
-              />
-            ))}
+            {Object.entries(result.concentrations)
+              .sort(([rateA], [rateB]) => parseFloat(rateA) - parseFloat(rateB))
+              .map(([rate, kde], index) => (
+                <Line
+                  key={rate}
+                  data={kde.x.map((x, i) => ({
+                    x,
+                    y: kde.y[i],
+                  }))}
+                  type="monotone"
+                  dataKey="y"
+                  name={`${rate} t/ha`}
+                  stroke={
+                    applicationRateColors[index % applicationRateColors.length]
+                  }
+                  dot={false}
+                  strokeWidth={2}
+                  activeDot={false}
+                />
+              ))}
             {/* Invisible filler line to allow tooltip hover over entire chart */}
             <Line
               data={Array.from({ length: 100 }, (_, i) => {
