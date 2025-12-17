@@ -1,6 +1,5 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
-import { formatNumber } from '../utils/formatNumber';
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -84,7 +83,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           whiteSpace: 'nowrap',
         }}
       >
-        {xValue ? `${formatNumber(xValue)} mg/kg` : ''}
+        {xValue ? `${xValue.toFixed(3)} mg/kg` : ''}
       </Box>
       <Box
         sx={{
