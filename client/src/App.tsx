@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import MetalCalculator from './components/MetalCalculator';
+import TermsOfUseModal from './components/TermsOfUseModal';
 import Logo from './assets/logo.png';
 import colors from './assets/colors';
 import Button from '@mui/material/Button';
+import { hasAgreedToTerms, setAgreedToTerms } from './utils/termsAgreement';
 
 const theme = createTheme({
   palette: {
@@ -21,9 +24,18 @@ const theme = createTheme({
 const headerHeight = '64px';
 
 function App() {
+  const [showTerms, setShowTerms] = useState(() => !hasAgreedToTerms());
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <TermsOfUseModal
+        open={showTerms}
+        onAgree={() => {
+          setAgreedToTerms();
+          setShowTerms(false);
+        }}
+      />
       <Box
         sx={{
           height: '100vh',
