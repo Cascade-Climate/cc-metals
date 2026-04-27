@@ -446,7 +446,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
             <RechartsTooltip
               content={<CustomTooltip labelColorMap={labelColorMap} />}
             />
-            {thresholds?.Total.map((entry, index) => (
+            {thresholds?.Total?.map((entry, index) => (
               <Line
                 key={`total-${index}`}
                 data={[
@@ -462,7 +462,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 stroke={getLabelColor(entry.label)}
               />
             ))}
-            {thresholds?.Aqua_regia.map((entry, index) => (
+            {thresholds?.Aqua_regia?.map((entry, index) => (
               <Line
                 key={`aqua-${index}`}
                 data={[
@@ -479,7 +479,7 @@ const Charts: React.FC<ChartsProps> = ({ result, thresholds }) => {
                 stroke={getLabelColor(entry.label)}
               />
             ))}
-            {thresholds?.Other_very_strong_acid.map((entry, index) => (
+            {thresholds?.Other_very_strong_acid?.map((entry, index) => (
               <Line
                 key={`other-${index}`}
                 data={[
